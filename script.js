@@ -1,99 +1,141 @@
+// ---------- Utilities ----------
+const $ = (s, c=document)=>c.querySelector(s);
+const $$ = (s, c=document)=>Array.from(c.querySelectorAll(s));
+$('#year').textContent = new Date().getFullYear();
+
+// Reveal on scroll
+const io = new IntersectionObserver((entries)=>{
+  entries.forEach(en=>{
+    if(en.isIntersecting){ en.target.classList.add('in'); io.unobserve(en.target); }
+  });
+},{threshold:.15});
+$$('.reveal').forEach(el=>io.observe(el));
+
+// ---------- Data ----------
+const RAW = "https://raw.githubusercontent.com/xayfitbusiness-bit/xayfitbusiness-bit.github.io/main/assets/images";
 const products = [
-  {
-    name: "Gorilla Tee",
-    price: 29.99,
-    image: "https://raw.githubusercontent.com/xayfitbusiness-bit/xayfitbusiness-bit.github.io/main/assets/images/gorilla-logo.jpg",
-    description: "Bold gorilla design representing strength and dominance."
-  },
-  {
-    name: "Wolf Tee",
-    price: 29.99,
-    image: "https://raw.githubusercontent.com/xayfitbusiness-bit/xayfitbusiness-bit.github.io/main/assets/images/wolf-logo.jpg",
-    description: "Fierce wolf design symbolizing loyalty and teamwork."
-  },
-  {
-    name: "Bear Tee",
-    price: 29.99,
-    image: "https://raw.githubusercontent.com/xayfitbusiness-bit/xayfitbusiness-bit.github.io/main/assets/images/bear-logo.jpg",
-    description: "Powerful bear design channeling endurance and resilience."
-  },
-  {
-    name: "Lion Tee",
-    price: 29.99,
-    image: "https://raw.githubusercontent.com/xayfitbusiness-bit/xayfitbusiness-bit.github.io/main/assets/images/lion-logo.jpg",
-    description: "Majestic lion design embodying leadership and pride."
-  },
-  {
-    name: "Tiger Tee",
-    price: 29.99,
-    image: "https://raw.githubusercontent.com/xayfitbusiness-bit/xayfitbusiness-bit.github.io/main/assets/images/tiger-logo.jpg",
-    description: "Dynamic tiger design unleashing speed and focus."
-  }
+  { id:'lion',  name:'Lion Tee',  price:29.99, img:`${RAW}/lion-logo.jpg`,  desc:'Lead like a king.', tag:'big-cat', badge:'Drop' },
+  { id:'tiger', name:'Tiger Tee', price:29.99, img:`${RAW}/tiger-logo.jpg`, desc:'Strike fast. Stay sharp.', tag:'big-cat', badge:'Hot' },
+  { id:'bear',  name:'Bear Tee',  price:29.99, img:`${RAW}/bear-logo.jpg`,  desc:'Grit and resilience.', tag:'power',   badge:'Core' },
+  { id:'gorilla',name:'Gorilla Tee',price:29.99,img:`${RAW}/gorilla-logo.jpg`,desc:'Raw strength.', tag:'power', badge:'Core' },
+  { id:'wolf',  name:'Wolf Tee',  price:29.99, img:`${RAW}/wolf-logo.jpg`,  desc:'Run with the pack.', tag:'pack',    badge:'New' }
 ];
 
-const productsContainer = document.getElementById("products");
-const cartBtn = document.querySelector(".cart-btn");
-const cart = document.getElementById("cart");
-const closeCartBtn = document.getElementById("close-cart");
-const cartItems = document.getElementById("cart-items");
-const cartTotal = document.getElementById("cart-total");
-const year = document.getElementById("year");
-
-let cartData = [];
-
-// Render products
-function renderProducts() {
-  productsContainer.innerHTML = "";
-  products.forEach((p, i) => {
-    const card = document.createElement("div");
-    card.classList.add("product-card");
-    card.innerHTML = `
-      <img src="${p.image}" alt="${p.name}">
-      <h3>${p.name}</h3>
-      <p>$${p.price.toFixed(2)}</p>
-      <button class="btn" onclick="addToCart(${i})">Add to Cart</button>
-    `;
-    productsContainer.appendChild(card);
-  });
+// ---------- Render ----------
+const grid = $('#productGrid');
+function render(filter='all'){
+  const list = products.filter(p => filter==='all' ? true : p.tag===filter);
+  grid.innerHTML = list.map(p => `
+    <article class="card reveal" data-id="${p.id}">
+      <div class="thumb">
+        <img src="${p.img}" alt="${p.name}">
+        <span class="badge">${p.badge}</span>
+      </div>
+      <div class="card-body">
+        <h3>${p.name}</h3>
+        <p>${p.desc}</p>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+          <span class="price">$${p.price.toFixed(2)}</span>
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-ghost view" data-id="${p.id}">View</button>
+            <button class="btn btn-primary add" data-id="${p.id}">Add</button>
+          </div>
+        </div>
+      </div>
+    </article>
+  `).join('');
+  $$('.card.reveal').forEach(el=>io.observe(el));
 }
+render();
 
-function addToCart(i) {
-  const product = products[i];
-  const existing = cartData.find(item => item.name === product.name);
-  if (existing) {
-    existing.qty++;
-  } else {
-    cartData.push({ ...product, qty: 1 });
+// Filters
+$('.filters')?.addEventListener('click', e=>{
+  const btn = e.target.closest('.filter'); if(!btn) return;
+  $$('.filter').forEach(b=>b.classList.remove('is-active'));
+  btn.classList.add('is-active');
+  render(btn.dataset.filter);
+});
+
+// ---------- Modal ----------
+const modal = $('#productModal');
+const modalBody = $('#modalBody');
+$('#modalClose').addEventListener('click', ()=> modal.setAttribute('aria-hidden','true'));
+modal.addEventListener('click', e=>{ if(e.target===modal) modal.setAttribute('aria-hidden','true'); });
+
+grid.addEventListener('click', e=>{
+  const v = e.target.closest('.view'); if(!v) return;
+  const p = products.find(x=>x.id===v.dataset.id);
+  modalBody.innerHTML = `
+    <div class="detail">
+      <img src="${p.img}" alt="${p.name}">
+      <div>
+        <h3>${p.name}</h3>
+        <p>${p.desc}</p>
+        <p class="price" style="margin:8px 0 12px;">$${p.price.toFixed(2)}</p>
+        <button class="btn btn-primary" id="detailAdd">Add to Cart</button>
+      </div>
+    </div>`;
+  modal.setAttribute('aria-hidden','false');
+  $('#detailAdd').addEventListener('click', ()=> addToCart(p.id));
+});
+
+// ---------- Cart ----------
+let cart = [];
+const cartBtn = $('#cartBtn');
+const drawer = $('#cartDrawer');
+const closeCart = $('#closeCart');
+const itemsEl = $('#cartItems');
+const totalEl = $('#cartTotal');
+
+cartBtn.addEventListener('click', ()=>{
+  const hidden = drawer.getAttribute('aria-hidden')==='true';
+  drawer.setAttribute('aria-hidden', hidden?'false':'true');
+});
+closeCart.addEventListener('click', ()=> drawer.setAttribute('aria-hidden','true'));
+
+function addToCart(id){
+  const p = products.find(x=>x.id===id);
+  const ex = cart.find(x=>x.id===id);
+  if(ex) ex.qty += 1; else cart.push({id:p.id,name:p.name,price:p.price,img:p.img,qty:1});
+  renderCart();
+}
+grid.addEventListener('click', e=>{
+  const add = e.target.closest('.add'); if(add) addToCart(add.dataset.id);
+});
+
+function renderCart(){
+  if(cart.length===0){
+    itemsEl.innerHTML = `<p style="color:#9aa3b2">Your cart is empty.</p>`;
+    totalEl.textContent = '0.00';
+    return;
   }
+  itemsEl.innerHTML = cart.map(i=>`
+    <div class="ci">
+      <img src="${i.img}" alt="${i.name}" />
+      <div style="display:grid;gap:4px;">
+        <strong>${i.name}</strong>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <button class="icon-btn q" data-id="${i.id}" data-d="-1">−</button>
+          <span>${i.qty}</span>
+          <button class="icon-btn q" data-id="${i.id}" data-d="1">+</button>
+        </div>
+      </div>
+      <div class="price">$${(i.price*i.qty).toFixed(2)}</div>
+    </div>
+  `).join('');
+  totalEl.textContent = cart.reduce((s,i)=>s+i.price*i.qty,0).toFixed(2);
+}
+itemsEl.addEventListener('click', e=>{
+  const q = e.target.closest('.q'); if(!q) return;
+  const id = q.dataset.id; const d = Number(q.dataset.d);
+  const it = cart.find(x=>x.id===id); if(!it) return;
+  it.qty += d; if(it.qty<=0) cart = cart.filter(x=>x.id!==id);
   renderCart();
-}
+});
 
-function renderCart() {
-  cartItems.innerHTML = "";
-  let total = 0;
-  cartData.forEach((item, i) => {
-    total += item.price * item.qty;
-    const div = document.createElement("div");
-    div.innerHTML = `
-      <p>${item.name} x${item.qty} - $${(item.price * item.qty).toFixed(2)}</p>
-      <button onclick="removeFromCart(${i})">Remove</button>
-    `;
-    cartItems.appendChild(div);
-  });
-  cartTotal.textContent = total.toFixed(2);
-}
-
-function removeFromCart(i) {
-  cartData.splice(i, 1);
-  renderCart();
-}
-
-// Cart toggles
-cartBtn.addEventListener("click", () => cart.classList.add("open"));
-closeCartBtn.addEventListener("click", () => cart.classList.remove("open"));
-
-// Year
-year.textContent = new Date().getFullYear();
-
-// Init
-renderProducts();
+// Contact (demo)
+$('#contactForm')?.addEventListener('submit', e=>{
+  e.preventDefault();
+  alert('Thanks! We’ll get back to you soon.');
+  e.target.reset();
+});
