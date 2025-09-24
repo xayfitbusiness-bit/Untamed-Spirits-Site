@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Untamed Spirits — Gym Wear</title>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <nav class="nav container">
+      <a class="brand" href="#">Untamed Spirits</a>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="#shop">Shop</a></li>
+        <li><a href="#about">About</a></li>
+        <li><a href="#lookbook">Lookbook</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+      <div class="nav-actions">
+        <button id="cartBtn" aria-label="Cart">Cart (<span id="cartCount">0</span>)</button>
+        <button id="mobileMenuBtn" class="mobile-menu">☰</button>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <!-- Hero -->
+    <section class="hero" id="home">
+      <div class="container hero-grid">
+        <div class="hero-copy">
+          <h1>Untamed Spirits</h1>
+          <p class="sub">Gym wear for those who train like predators. Bold, modern designs featuring apex-animal artwork on the back and a clean logo on the chest.</p>
+          <a href="#shop" class="btn-primary">Shop the Collection</a>
+        </div>
+        <div class="hero-image">
+          <img src="https://images.unsplash.com/photo-1519744792095-2f2205e87b6f?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3&s=placeholder" alt="Athlete wearing gym shirt">
+        </div>
+      </div>
+    </section>
+
+    <!-- Featured Collection / Shop -->
+    <section class="container" id="shop">
+      <h2 class="section-title">Featured Collection</h2>
+      <p class="section-sub">Bold predator faces. Clean chest branding. Performance fabrics built for heavy lifts and everyday training.</p>
+
+      <div id="productGrid" class="product-grid">
+        <!-- Products inserted by JS -->
+      </div>
+    </section>
+
+    <!-- Lookbook (images) -->
+    <section id="lookbook" class="container lookbook">
+      <h2 class="section-title">Lookbook</h2>
+      <div class="lookbook-grid">
+        <img src="https://images.unsplash.com/photo-1552345384-1a9d6e8a3f4b?q=80&w=800&auto=format&fit=crop&ixlib=rb-4.0.3&s=placeholder" alt="look 1">
+        <img src="https://images.unsplash.com/photo-1526403224749-62f0f1ef7dff?q=80&w=800&auto=format&fit=crop&ixlib=rb-4.0.3&s=placeholder" alt="look 2">
+        <img src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=800&auto=format&fit=crop&ixlib=rb-4.0.3&s=placeholder" alt="look 3">
+      </div>
+    </section>
+
+    <!-- About -->
+    <section id="about" class="container about">
+      <h2 class="section-title">About Untamed Spirits</h2>
+      <p>Untamed Spirits is a gym apparel brand designed for serious trainers and anyone who wants performance with style. Our shirts feature apex predator artwork on the back and a minimal chest logo so you look fierce in the gym and clean outside of it.</p>
+      <ul>
+        <li>Premium moisture-wicking fabric</li>
+        <li>Reinforced seams for heavy training</li>
+        <li>Limited runs — new predators drop each season</li>
+      </ul>
+    </section>
+
+    <!-- Contact -->
+    <section id="contact" class="container contact">
+      <h2 class="section-title">Contact</h2>
+      <p>Questions, wholesale inquiries, or collabs? Send us a message.</p>
+      <form id="contactForm" class="contact-form">
+        <label>
+          Name
+          <input type="text" name="name" required>
+        </label>
+        <label>
+          Email
+          <input type="email" name="email" required>
+        </label>
+        <label>
+          Message
+          <textarea name="message" rows="4" required></textarea>
+        </label>
+        <button type="submit" class="btn-primary">Send</button>
+      </form>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <strong>Untamed Spirits</strong>
+        <p>Gym wear • Apex designs • Built to lift</p>
+      </div>
+      <div>
+        <p>© <span id="year"></span> Untamed Spirits</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Product detail modal -->
+  <div id="productModal" class="modal" aria-hidden="true">
+    <div class="modal-content" role="dialog" aria-modal="true">
+      <button class="modal-close" id="modalClose">✕</button>
+      <div class="modal-body" id="modalBody">
+        <!-- Filled by JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Simple cart drawer -->
+  <aside id="cartDrawer" class="cart-drawer" aria-hidden="true">
+    <header class="cart-header">
+      <h3>Your Cart</h3>
+      <button id="closeCart">Close</button>
+    </header>
+    <div id="cartItems" class="cart-items"></div>
+    <div class="cart-footer">
+      <div class="cart-total">Total: $<span id="cartTotal">0.00</span></div>
+      <button id="checkoutBtn" class="btn-primary">Checkout</button>
+    </div>
+  </aside>
+
+  <script src="script.js"></script>
+</body>
+</html>
