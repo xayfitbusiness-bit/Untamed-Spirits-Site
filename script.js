@@ -1,191 +1,260 @@
-/* Untamed Spirits - simple shop + cart (localStorage)
-   Replace sample products / images with your real data.
-*/
+// ---------- Helpers ----------
+const $  = (s, c = document) => c.querySelector(s);
+const $$ = (s, c = document) => Array.from(c.querySelectorAll(s));
+document.documentElement.style.scrollBehavior = 'smooth';
+$('#year').textContent = new Date().getFullYear();
 
+// Mobile menu
+$('#mobileMenuBtn')?.addEventListener('click', () => {
+  $('#navLinks').classList.toggle('open');
+});
+
+// Back to top
+const toTop = $('#toTop');
+window.addEventListener('scroll', () => {
+  toTop.classList.toggle('show', window.scrollY > 800);
+});
+toTop.addEventListener('click', () => window.scrollTo({top:0, behavior:'smooth'}));
+
+// Newsletter + contact (demo only)
+$('#newsForm')?.addEventListener('submit', (e) => { e.preventDefault(); alert('Subscribed!'); e.target.reset(); });
+$('#contactForm')?.addEventListener('submit', (e) => { e.preventDefault(); alert('Thanks! We’ll reply soon.'); e.target.reset(); });
+
+// Reveal on scroll
+const io = new IntersectionObserver((entries) => {
+  entries.forEach((en) => {
+    if (en.isIntersecting) {
+      en.target.classList.add('in');
+      io.unobserve(en.target);
+    }
+  })
+}, { threshold: 0.15 });
+$$('.reveal, .product-card').forEach(el => io.observe(el));
+
+// ---------- Products ----------
+// tip: you can duplicate items to add sizes/colors; change price/name/thumbnail/logo/mock as needed
 const products = [
+  // Existing athletic shots
   {
-    id: "predator-lion-black",
-    title: "Lion Apex Tee — Black",
-    price: 29.99,
-    img: "IMG_2869.jpegq=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3&s=placeholder",
-    desc: "Soft performance tee with large lion face on the back and small chest logo."
+    id: 'black-classic',
+    name: 'Black Tee — Classic',
+    price: 29.00,
+    badge: 'Best Seller',
+    design: 'gorilla',
+    thumbnail: 'assets/images/model-gym-smile.jpg',
+    imageLarge: 'assets/images/model-portrait-crossed.jpg',
+    description: 'Moisture-wicking performance tee with chest logo and tiger mark.',
+    // mock overlay (logo over a model photo)
+    mock: { photo: 'assets/images/model-portrait-crossed.jpg', logo: 'assets/images/gorilla-logo.jpg' }
   },
   {
-    id: "predator-tiger-charcoal",
-    title: "Tiger Apex Tee — Charcoal",
-    price: 31.99,
-    img: "https://images.unsplash.com/photo-1517816743773-6e0fd518b4a6?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3&s=placeholder",
-    desc: "Premium cut, reinforced seams, moisture-wicking fabric."
+    id: 'charcoal-performance',
+    name: 'Charcoal Tee — Performance',
+    price: 29.00,
+    badge: 'New',
+    design: 'wolf',
+    thumbnail: 'assets/images/model-forest-xavier.jpg',
+    imageLarge: 'assets/images/rock-three-tees.jpg',
+    description: 'Lightweight charcoal fabric with reinforced seams—built for heavy sessions.',
+    mock: { photo: 'assets/images/model-steps-sit-2.jpg', logo: 'assets/images/wolf-logo.jpg' }
   },
   {
-    id: "predator-gorilla-olive",
-    title: "Gorilla Apex Tee — Olive",
-    price: 32.00,
-    img: "https://images.unsplash.com/photo-1520975687920-6b4b1a23f4f0?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3&s=placeholder",
-    desc: "Heavy-lift friendly tee with modern gorilla artwork."
+    id: 'black-athletic',
+    name: 'Black Tee — Athletic Fit',
+    price: 29.00,
+    badge: 'Limited',
+    design: 'bear',
+    thumbnail: 'assets/images/model-gym-flex.jpg',
+    imageLarge: 'assets/images/model-steps-sit-2.jpg',
+    description: 'Athletic cut with four-way stretch and quick-dry comfort.',
+    mock: { photo: 'assets/images/model-steps-sit-1.jpg', logo: 'assets/images/bear-logo.jpg' }
+  },
+
+  // New “logo-first” product tiles
+  {
+    id: 'gorilla-black',
+    name: 'Gorilla Mark — Black',
+    price: 29.00,
+    badge: 'New',
+    design: 'gorilla',
+    thumbnail: 'assets/images/gorilla-logo.jpg',
+    imageLarge: 'assets/images/gorilla-logo.jpg',
+    description: 'Signature Gorilla artwork on our moisture-wicking black tee.',
+    mock: { photo: 'assets/images/model-forest-stand.jpg', logo: 'assets/images/gorilla-logo.jpg' }
+  },
+  {
+    id: 'wolf-black',
+    name: 'Wolf Mark — Black',
+    price: 29.00,
+    badge: 'New',
+    design: 'wolf',
+    thumbnail: 'assets/images/wolf-logo.jpg',
+    imageLarge: 'assets/images/wolf-logo.jpg',
+    description: 'Alpha Wolf artwork with clean chest branding.',
+    mock: { photo: 'assets/images/model-steps-sit-1.jpg', logo: 'assets/images/wolf-logo.jpg' }
+  },
+  {
+    id: 'bear-black',
+    name: 'Bear Mark — Black',
+    price: 29.00,
+    badge: 'New',
+    design: 'bear',
+    thumbnail: 'assets/images/bear-logo.jpg',
+    imageLarge: 'assets/images/bear-logo.jpg',
+    description: 'Grizzly Bear artwork — strength, grit, and focus.',
+    mock: { photo: 'assets/images/model-forest-xavier.jpg', logo: 'assets/images/bear-logo.jpg' }
   }
 ];
 
-// DOM
-const productGrid = document.getElementById('productGrid');
-const cartBtn = document.getElementById('cartBtn');
-const cartDrawer = document.getElementById('cartDrawer');
-const closeCart = document.getElementById('closeCart');
-const cartItemsEl = document.getElementById('cartItems');
-const cartCountEl = document.getElementById('cartCount');
-const cartTotalEl = document.getElementById('cartTotal');
-const productModal = document.getElementById('productModal');
-const modalBody = document.getElementById('modalBody');
-const modalClose = document.getElementById('modalClose');
+// ---------- Render products ----------
+const productGrid = $('#productGrid');
+function renderGrid(filter = 'all') {
+  const list = products.filter(p => filter === 'all' ? true : p.design === filter);
+  productGrid.innerHTML = list.map(p => `
+    <article class="product-card" data-id="${p.id}">
+      <div class="img-wrap">
+        <img src="${p.thumbnail}" alt="${p.name}" loading="lazy">
+        <span class="badge">${p.badge ?? ''}</span>
+      </div>
+      <div class="info">
+        <h3>${p.name}</h3>
+        <p class="muted">${p.description}</p>
+        <div class="row">
+          <p class="price">$${p.price.toFixed(2)}</p>
+          <div class="actions">
+            <button class="btn-secondary viewBtn" data-id="${p.id}">View</button>
+            <button class="btn-primary addBtn" data-id="${p.id}">Add</button>
+          </div>
+        </div>
+      </div>
+    </article>
+  `).join('');
+  $$('.product-card').forEach(el => io.observe(el));
+}
+renderGrid();
 
-let cart = JSON.parse(localStorage.getItem('untamed_cart') || '[]');
+// Filters
+$('.filters')?.addEventListener('click', (e) => {
+  const btn = e.target.closest('.chip');
+  if (!btn) return;
+  $$('.chip').forEach(b => b.classList.remove('is-active'));
+  btn.classList.add('is-active');
+  renderGrid(btn.dataset.filter);
+});
 
-function saveCart(){ localStorage.setItem('untamed_cart', JSON.stringify(cart)); updateCartUI(); }
-function addToCart(productId, qty = 1){
-  const p = products.find(x => x.id === productId);
-  if(!p) return;
-  const existing = cart.find(i=>i.id===p.id);
-  if(existing) existing.qty += qty;
-  else cart.push({id:p.id, title:p.title, price:p.price, img:p.img, qty});
-  saveCart();
-  openCart();
+// ---------- Modal ----------
+const modal = $('#productModal');
+const modalBody = $('#modalBody');
+const modalClose = $('#modalClose');
+
+function openModal(html) {
+  modalBody.innerHTML = html;
+  modal.setAttribute('aria-hidden', 'false');
+  modal.classList.add('open');
+  document.body.style.overflow = 'hidden';
 }
-function removeFromCart(productId){
-  cart = cart.filter(i=>i.id !== productId);
-  saveCart();
+function closeModal() {
+  modal.setAttribute('aria-hidden', 'true');
+  modal.classList.remove('open');
+  document.body.style.overflow = '';
 }
-function updateQty(productId, qty){
-  const it = cart.find(i=>i.id===productId);
-  if(!it) return;
-  it.qty = Math.max(1, qty);
-  saveCart();
-}
-function cartTotal(){ return cart.reduce((s,i)=>s + i.price*i.qty, 0); }
-function updateCartUI(){
-  cartCountEl.textContent = cart.reduce((s,i)=>s+i.qty,0);
-  cartTotalEl.textContent = cartTotal().toFixed(2);
-  cartItemsEl.innerHTML = '';
-  if(cart.length === 0){
-    cartItemsEl.innerHTML = '<p style="color:var(--muted)">Your cart is empty.</p>';
+modalClose.addEventListener('click', closeModal);
+modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
+
+// ---------- Cart ----------
+let cart = [];
+const cartBtn = $('#cartBtn');
+const cartDrawer = $('#cartDrawer');
+const closeCart = $('#closeCart');
+const cartItemsEl = $('#cartItems');
+const cartTotalEl = $('#cartTotal');
+const cartCountEl = $('#cartCount');
+
+cartBtn.addEventListener('click', () => {
+  const isHidden = cartDrawer.getAttribute('aria-hidden') === 'true';
+  cartDrawer.setAttribute('aria-hidden', isHidden ? 'false' : 'true');
+});
+closeCart.addEventListener('click', () => cartDrawer.setAttribute('aria-hidden', 'true'));
+
+function renderCart() {
+  if (cart.length === 0) {
+    cartItemsEl.innerHTML = '<p class="muted">Your cart is empty.</p>';
+    cartTotalEl.textContent = '0.00';
+    cartCountEl.textContent = '0';
     return;
   }
-  cart.forEach(it=>{
-    const div = document.createElement('div');
-    div.className = 'cart-item';
-    div.innerHTML = `
-      <img src="${it.img}" alt="${it.title}">
-      <div style="flex:1">
-        <strong style="display:block">${it.title}</strong>
-        <div style="color:var(--muted);font-size:.95rem">$${it.price.toFixed(2)} • Qty:
-          <input type="number" value="${it.qty}" min="1" style="width:56px" data-id="${it.id}" class="qty-input">
-          <button data-id="${it.id}" class="remove-btn" style="margin-left:8px">Remove</button>
+  cartItemsEl.innerHTML = cart.map(item => `
+    <div class="cart-item">
+      <img src="${item.thumbnail}" alt="${item.name}" />
+      <div class="ci-info">
+        <div class="ci-title">${item.name}</div>
+        <div class="qty">
+          <button class="qbtn" data-id="${item.id}" data-delta="-1" aria-label="Decrease">−</button>
+          <span>${item.qty}</span>
+          <button class="qbtn" data-id="${item.id}" data-delta="1" aria-label="Increase">+</button>
         </div>
       </div>
-    `;
-    cartItemsEl.appendChild(div);
-  });
-
-  // bind qty & remove
-  cartItemsEl.querySelectorAll('.qty-input').forEach(inp=>{
-    inp.addEventListener('change', e=>{
-      const id = e.target.dataset.id;
-      const val = parseInt(e.target.value) || 1;
-      updateQty(id, val);
-    });
-  });
-  cartItemsEl.querySelectorAll('.remove-btn').forEach(b=>{
-    b.addEventListener('click', e=>{
-      removeFromCart(e.target.dataset.id);
-    });
-  });
-}
-
-// open / close cart
-function openCart(){ cartDrawer.setAttribute('aria-hidden', 'false'); updateCartUI(); }
-function closeCartDrawer(){ cartDrawer.setAttribute('aria-hidden', 'true'); }
-
-// render products
-function renderProducts(){
-  productGrid.innerHTML = '';
-  products.forEach(p=>{
-    const card = document.createElement('div');
-    card.className = 'product-card';
-    card.innerHTML = `
-      <img src="${p.img}" alt="${p.title}">
-      <h3>${p.title}</h3>
-      <p class="desc">${p.desc}</p>
-      <div class="price">$${p.price.toFixed(2)}</div>
-      <div class="card-actions">
-        <button class="btn-primary view-btn" data-id="${p.id}">View</button>
-        <button class="btn-primary add-btn" style="background:transparent;border:1px solid rgba(255,255,255,0.08)" data-id="${p.id}">Add</button>
-      </div>
-    `;
-    productGrid.appendChild(card);
-  });
-
-  // bindings
-  document.querySelectorAll('.add-btn').forEach(b=>{
-    b.addEventListener('click', e=> addToCart(e.target.dataset.id));
-  });
-  document.querySelectorAll('.view-btn').forEach(b=>{
-    b.addEventListener('click', e=> openProductModal(e.target.dataset.id));
-  });
-}
-
-// product modal
-function openProductModal(id){
-  const p = products.find(x=>x.id===id);
-  if(!p) return;
-  productModal.setAttribute('aria-hidden','false');
-  modalBody.innerHTML = `
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start">
-      <img src="${p.img}" alt="${p.title}" style="width:100%;height:360px;object-fit:cover;border-radius:8px">
-      <div>
-        <h2>${p.title}</h2>
-        <p style="color:var(--muted)">${p.desc}</p>
-        <div style="font-weight:800;margin:8px 0">$${p.price.toFixed(2)}</div>
-        <label>Quantity <input id="modalQty" type="number" value="1" min="1" style="width:80px"></label>
-        <div style="margin-top:12px">
-          <button id="modalAdd" class="btn-primary">Add to cart</button>
-          <button id="modalCloseBtn" style="margin-left:8px;background:transparent;border:1px solid rgba(255,255,255,0.06);padding:10px;border-radius:8px">Close</button>
-        </div>
-      </div>
+      <div class="ci-price">$${(item.price * item.qty).toFixed(2)}</div>
     </div>
-  `;
-
-  document.getElementById('modalAdd').addEventListener('click', ()=>{
-    const qty = parseInt(document.getElementById('modalQty').value) || 1;
-    addToCart(p.id, qty);
-    closeProductModal();
-  });
-  document.getElementById('modalCloseBtn').addEventListener('click', closeProductModal);
+  `).join('');
+  const total = cart.reduce((sum, i) => sum + i.price * i.qty, 0);
+  cartTotalEl.textContent = total.toFixed(2);
+  cartCountEl.textContent = String(cart.reduce((n, i) => n + i.qty, 0));
 }
-function closeProductModal(){ productModal.setAttribute('aria-hidden','true'); modalBody.innerHTML = ''; }
 
-// contact form (stub)
-document.getElementById('contactForm').addEventListener('submit', (e)=>{
-  e.preventDefault();
-  alert('Thanks — message sent (this is a demo stub). Replace with your mailing backend or use Formspree/Netlify Forms.');
-  e.target.reset();
+function addToCart(id) {
+  const p = products.find(x => x.id === id);
+  const existing = cart.find(x => x.id === id);
+  if (existing) existing.qty += 1;
+  else cart.push({ id: p.id, name: p.name, price: p.price, thumbnail: p.thumbnail, qty: 1 });
+  renderCart();
+}
+
+cartItemsEl.addEventListener('click', (e) => {
+  const btn = e.target.closest('.qbtn');
+  if (!btn) return;
+  const id = btn.dataset.id;
+  const delta = Number(btn.dataset.delta);
+  const item = cart.find(i => i.id === id);
+  if (!item) return;
+  item.qty += delta;
+  if (item.qty <= 0) cart = cart.filter(i => i.id !== id);
+  renderCart();
 });
 
-// init
-document.getElementById('year').textContent = new Date().getFullYear();
-renderProducts();
-updateCartUI();
+// Grid buttons (view / add)
+productGrid.addEventListener('click', (e) => {
+  const viewBtn = e.target.closest('.viewBtn');
+  const addBtn  = e.target.closest('.addBtn');
+  if (viewBtn) {
+    const id = viewBtn.dataset.id;
+    const p = products.find(x => x.id === id);
 
-// events
-cartBtn.addEventListener('click', openCart);
-closeCart.addEventListener('click', closeCartDrawer);
-document.getElementById('checkoutBtn').addEventListener('click', ()=>{
-  alert('Checkout not implemented in this demo. Integrate with Stripe / Shopify / PayPal for payments.');
-});
-modalClose.addEventListener('click', closeProductModal);
-productModal.addEventListener('click', (e)=>{ if(e.target === productModal) closeProductModal(); });
+    // Build mock preview if provided
+    const mockHTML = p.mock ? `
+      <div class="mock">
+        <img class="mock-photo" src="${p.mock.photo}" alt="${p.name} on model">
+        <img class="mock-logo" src="${p.mock.logo}" alt="${p.name} logo overlay">
+      </div>` : '';
 
-// mobile menu (very simple)
-document.getElementById('mobileMenuBtn').addEventListener('click', ()=>{
-  const nav = document.getElementById('navLinks');
-  nav.style.display = nav.style.display === 'flex' ? 'none' : 'flex';
-  nav.style.flexDirection = 'column';
+    openModal(`
+      <div class="product-detail">
+        <div class="detail-media">
+          ${mockHTML || `<img src="${p.imageLarge}" alt="${p.name} large view">`}
+        </div>
+        <div class="detail-info">
+          <h3 id="modalTitle">${p.name}</h3>
+          <p>${p.description}</p>
+          <p class="price">$${p.price.toFixed(2)}</p>
+          <div class="detail-actions">
+            <button class="btn-secondary" id="detailClose">Close</button>
+            <button class="btn-primary" id="detailAdd">Add to Cart</button>
+          </div>
+        </div>
+      </div>
+    `);
+    $('#detailClose').addEventListener('click', closeModal);
+    $('#detailAdd').addEventListener('click', () => addToCart(id));
+  }
+  if (addBtn) addToCart(addBtn.dataset.id);
 });
