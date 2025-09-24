@@ -1,137 +1,99 @@
-// --------- PRODUCT DATA ----------
 const products = [
   {
-    id: 1,
-    name: "Gorilla Apex Tee",
-    price: 30,
-    img: "assets/images/gorilla-logo.jpg",
-    desc: "Unleash raw strength with the Gorilla design. Perfect for heavy lifts."
+    name: "Gorilla Tee",
+    price: 29.99,
+    image: "https://raw.githubusercontent.com/xayfitbusiness-bit/xayfitbusiness-bit.github.io/main/assets/images/gorilla-logo.jpg",
+    description: "Bold gorilla design representing strength and dominance."
   },
   {
-    id: 2,
-    name: "Wolf Apex Tee",
-    price: 30,
-    img: "assets/images/wolf-logo.jpg",
-    desc: "Run with the pack. Built for endurance and focus."
+    name: "Wolf Tee",
+    price: 29.99,
+    image: "https://raw.githubusercontent.com/xayfitbusiness-bit/xayfitbusiness-bit.github.io/main/assets/images/wolf-logo.jpg",
+    description: "Fierce wolf design symbolizing loyalty and teamwork."
   },
   {
-    id: 3,
-    name: "Bear Apex Tee",
-    price: 30,
-    img: "assets/images/bear-logo.jpg",
-    desc: "Channel brute force. Stability and power combined."
+    name: "Bear Tee",
+    price: 29.99,
+    image: "https://raw.githubusercontent.com/xayfitbusiness-bit/xayfitbusiness-bit.github.io/main/assets/images/bear-logo.jpg",
+    description: "Powerful bear design channeling endurance and resilience."
   },
   {
-    id: 4,
-    name: "Lion Apex Tee",
-    price: 30,
-    img: "assets/images/lion-logo.jpg",
-    desc: "Lead like a king. Dominate your training sessions."
+    name: "Lion Tee",
+    price: 29.99,
+    image: "https://raw.githubusercontent.com/xayfitbusiness-bit/xayfitbusiness-bit.github.io/main/assets/images/lion-logo.jpg",
+    description: "Majestic lion design embodying leadership and pride."
   },
   {
-    id: 5,
-    name: "Tiger Apex Tee",
-    price: 30,
-    img: "assets/images/tiger-logo.jpg",
-    desc: "Ferocious energy with sleek design. Strike hard."
+    name: "Tiger Tee",
+    price: 29.99,
+    image: "https://raw.githubusercontent.com/xayfitbusiness-bit/xayfitbusiness-bit.github.io/main/assets/images/tiger-logo.jpg",
+    description: "Dynamic tiger design unleashing speed and focus."
   }
 ];
 
-// --------- RENDER PRODUCTS ----------
-const grid = document.getElementById("product-grid");
+const productsContainer = document.getElementById("products");
+const cartBtn = document.querySelector(".cart-btn");
+const cart = document.getElementById("cart");
+const closeCartBtn = document.getElementById("close-cart");
+const cartItems = document.getElementById("cart-items");
+const cartTotal = document.getElementById("cart-total");
+const year = document.getElementById("year");
 
+let cartData = [];
+
+// Render products
 function renderProducts() {
-  grid.innerHTML = "";
-  products.forEach((p) => {
+  productsContainer.innerHTML = "";
+  products.forEach((p, i) => {
     const card = document.createElement("div");
     card.classList.add("product-card");
     card.innerHTML = `
-      <img src="${p.img}" alt="${p.name}">
+      <img src="${p.image}" alt="${p.name}">
       <h3>${p.name}</h3>
-      <p class="price">$${p.price}</p>
-      <button onclick="openModal(${p.id})">View</button>
-      <button onclick="addToCart(${p.id})">Add to Cart</button>
+      <p>$${p.price.toFixed(2)}</p>
+      <button class="btn" onclick="addToCart(${i})">Add to Cart</button>
     `;
-    grid.appendChild(card);
+    productsContainer.appendChild(card);
   });
 }
-renderProducts();
 
-// --------- MODAL ----------
-const modal = document.getElementById("product-modal");
-
-function openModal(id) {
-  const p = products.find((x) => x.id === id);
-  modal.innerHTML = `
-    <div class="modal-content">
-      <span class="close" onclick="closeModal()">&times;</span>
-      <img src="${p.img}" alt="${p.name}">
-      <h2>${p.name}</h2>
-      <p>${p.desc}</p>
-      <p class="price">$${p.price}</p>
-      <button onclick="addToCart(${p.id}); closeModal()">Add to Cart</button>
-    </div>
-  `;
-  modal.classList.remove("hidden");
-}
-function closeModal() {
-  modal.classList.add("hidden");
-}
-
-// --------- CART ----------
-let cart = [];
-const cartDrawer = document.getElementById("cart-drawer");
-const cartCount = document.getElementById("cart-count");
-
-function addToCart(id) {
-  const item = cart.find((x) => x.id === id);
-  if (item) {
-    item.qty++;
+function addToCart(i) {
+  const product = products[i];
+  const existing = cartData.find(item => item.name === product.name);
+  if (existing) {
+    existing.qty++;
   } else {
-    const product = products.find((x) => x.id === id);
-    cart.push({ ...product, qty: 1 });
+    cartData.push({ ...product, qty: 1 });
   }
-  updateCart();
+  renderCart();
 }
 
-function updateCart() {
-  cartCount.textContent = cart.reduce((sum, x) => sum + x.qty, 0);
-  cartDrawer.innerHTML = `
-    <div class="cart-content">
-      <span class="close" onclick="toggleCart()">&times;</span>
-      <h2>Your Cart</h2>
-      ${cart
-        .map(
-          (x) => `
-          <div class="cart-item">
-            <img src="${x.img}" alt="${x.name}">
-            <div>
-              <h4>${x.name}</h4>
-              <p>$${x.price} × ${x.qty}</p>
-            </div>
-            <button onclick="removeFromCart(${x.id})">Remove</button>
-          </div>
-        `
-        )
-        .join("")}
-      <p class="cart-total">Total: $${cart.reduce(
-        (sum, x) => sum + x.price * x.qty,
-        0
-      )}</p>
-    </div>
-  `;
+function renderCart() {
+  cartItems.innerHTML = "";
+  let total = 0;
+  cartData.forEach((item, i) => {
+    total += item.price * item.qty;
+    const div = document.createElement("div");
+    div.innerHTML = `
+      <p>${item.name} x${item.qty} - $${(item.price * item.qty).toFixed(2)}</p>
+      <button onclick="removeFromCart(${i})">Remove</button>
+    `;
+    cartItems.appendChild(div);
+  });
+  cartTotal.textContent = total.toFixed(2);
 }
 
-function removeFromCart(id) {
-  cart = cart.filter((x) => x.id !== id);
-  updateCart();
+function removeFromCart(i) {
+  cartData.splice(i, 1);
+  renderCart();
 }
 
-function toggleCart() {
-  cartDrawer.classList.toggle("hidden");
-}
+// Cart toggles
+cartBtn.addEventListener("click", () => cart.classList.add("open"));
+closeCartBtn.addEventListener("click", () => cart.classList.remove("open"));
 
-document.querySelector(".cart-toggle").addEventListener("click", toggleCart);
+// Year
+year.textContent = new Date().getFullYear();
 
-// --------- YEAR ----------
-document.getElementById("year").textContent = new Date().getFullYear();
+// Init
+renderProducts();
