@@ -7,7 +7,7 @@ const products = [
     id: "predator-lion-black",
     title: "Lion Apex Tee — Black",
     price: 29.99,
-    img: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3&s=placeholder",
+    img: "IMG_2869.jpegq=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3&s=placeholder",
     desc: "Soft performance tee with large lion face on the back and small chest logo."
   },
   {
