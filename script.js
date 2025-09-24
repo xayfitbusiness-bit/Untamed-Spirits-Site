@@ -12,39 +12,13 @@ const io = new IntersectionObserver((entries)=>{
 $$('.reveal').forEach(el=>io.observe(el));
 
 // ---------- Data ----------
-const RAW = "https://raw.githubusercontent.com/xayfitbusiness-bit/xayfitbusiness-bit.github.io/main/assets/images";
+// Your images are in the repo root, so the paths are just the filenames.
 const products = [
-  const products = [
-  {
-    name: "Gorilla Tee",
-    price: 29.99,
-    image: "gorilla-logo.jpg",
-    description: "Bold gorilla design showing untamed strength."
-  },
-  {
-    name: "Wolf Tee",
-    price: 29.99,
-    image: "wolf-logo.jpg",
-    description: "Alpha wolf design for leaders of the pack."
-  },
-  {
-    name: "Bear Tee",
-    price: 29.99,
-    image: "bear-logo.jpg",
-    description: "Bear design symbolizing power and resilience."
-  },
-  {
-    name: "Lion Tee",
-    price: 29.99,
-    image: "lion-logo.jpg",
-    description: "Lion design embodying courage and pride."
-  },
-  {
-    name: "Tiger Tee",
-    price: 29.99,
-    image: "tiger-logo.jpg",
-    description: "Tiger design representing agility and focus."
-  }
+  { id:'lion',    name:'Lion Tee',    price:29.99, img:'lion-logo.jpg',    desc:'Lead like a king.',      tag:'big-cat', badge:'Drop' },
+  { id:'tiger',   name:'Tiger Tee',   price:29.99, img:'tiger-logo.jpg',   desc:'Strike fast. Stay sharp.', tag:'big-cat', badge:'Hot' },
+  { id:'bear',    name:'Bear Tee',    price:29.99, img:'bear-logo.jpg',    desc:'Grit and resilience.',  tag:'power',   badge:'Core' },
+  { id:'gorilla', name:'Gorilla Tee', price:29.99, img:'gorilla-logo.jpg', desc:'Raw strength.',         tag:'power',   badge:'Core' },
+  { id:'wolf',    name:'Wolf Tee',    price:29.99, img:'wolf-logo.jpg',    desc:'Run with the pack.',    tag:'pack',    badge:'New' }
 ];
 
 // ---------- Render ----------
