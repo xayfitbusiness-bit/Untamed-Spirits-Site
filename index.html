@@ -1,132 +1,146 @@
-<!DOCTYPE html>
+index <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Untamed Spirits — Apex Series</title>
+  <meta name="description" content="Untamed Spirits: premium gym wear with apex predator artwork." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Outfit:wght@600;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <!-- Header -->
+  <div class="topbar">
+    <div class="container tb-inner">
+      <span>🔥 New drop: Apex Series</span>
+      <a href="#shop" class="chip">Shop now</a>
+    </div>
+  </div>
+
   <header class="header">
-    <div class="container">
-      <h1 class="logo">Untamed Spirits</h1>
+    <div class="container header-row">
+      <a class="brand" href="#home">Untamed <span>Spirits</span></a>
       <nav class="nav">
         <a href="#shop">Shop</a>
         <a href="#lookbook">Lookbook</a>
         <a href="#about">About</a>
         <a href="#contact">Contact</a>
-        <button id="cart-toggle" class="btn-cart">Cart</button>
       </nav>
+      <button id="cartBtn" class="icon-btn" aria-label="Open cart">🛒</button>
     </div>
   </header>
 
-  <!-- Hero -->
-  <section id="hero" class="hero section">
-    <div class="container hero-container">
-      <div class="hero-text">
-        <h1 class="slogan">Take Nothing. Give Everything.</h1>
-        <a href="#shop" class="btn btn-primary btn-hero">Shop Now</a>
+  <main id="home">
+    <!-- Hero -->
+    <section class="hero">
+      <div class="container hero-grid">
+        <div class="hero-copy">
+          <h1>Take Nothing Give Everything</h1>
+          <p>Performance tees with apex artwork. Minimal chest branding. Built to move.</p>
+          <div class="cta-row">
+            <a href="#shop" class="btn btn-primary">Shop Collection</a>
+            <a href="#lookbook" class="btn btn-ghost">Lookbook</a>
+          </div>
+        </div>
+        <div class="hero-media">
+          <img class="hero-img" alt="Untamed Spirits hero" src="hero.jpg">
+          <div class="glass hero-badge">Apex • 2025</div>
+        </div>
       </div>
-      <div class="hero-img-wrap">
-        <img src="assets/images/hero.jpg" alt="Untamed Spirits Hero" class="hero-img" />
+    </section>
+
+    <!-- Shop -->
+    <section id="shop" class="section">
+      <div class="container">
+        <div class="section-head">
+          <h2>Featured Tees</h2>
+          <div class="filters">
+            <button class="filter chip is-active" data-filter="all">All</button>
+            <button class="filter chip" data-filter="big-cat">Big Cats</button>
+            <button class="filter chip" data-filter="power">Power</button>
+            <button class="filter chip" data-filter="pack">Pack</button>
+          </div>
+        </div>
+        <div id="productGrid" class="grid"></div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- Shop -->
-  <section id="shop" class="section">
-    <div class="container">
-      <h2>Shop Collection</h2>
-      <div id="products" class="product-grid"></div>
-    </div>
-  </section>
-
-  <!-- Lookbook -->
-  <section id="lookbook" class="section">
-    <div class="container">
-      <h2>Lookbook</h2>
-      <div class="lookbook-grid">
-        <img alt="Look 1" src="assets/images/look1.jpg">
-        <img alt="Look 2" src="assets/images/look2.jpg">
-        <img alt="Look 3" src="assets/images/look3.jpg">
-        <img alt="Look 4" src="assets/images/look4.jpg">
-        <img alt="Look 6" src="assets/images/look6.jpg">
-        <img alt="Look 5" src="assets/images/look5.jpg">
+    <!-- Lookbook -->
+    <section id="lookbook" class="section">
+      <div class="container">
+        <h2>Lookbook</h2>
+        <div class="lookbook-grid reveal">
+          <img alt="look 1" src="look1.jpg">
+          <img alt="look 2" src="look2.jpg">
+          <img alt="look 3" src="look3.jpg">
+          <img alt="look 4" src="look4.jpg">
+          <img alt="look 6" src="look6.jpg">
+          <img alt="look 5" src="look5.jpg">
+        </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- About -->
-  <section id="about" class="section about">
-    <div class="container">
-      <h2>About Untamed Spirits</h2>
-      <p>
-        Untamed Spirits is more than a brand — it’s a movement. Our designs are inspired by apex predators,
-        symbolizing strength, resilience, and dominance inside and outside the gym.
-      </p>
-      <ul>
-        <li>Premium fabrics built for performance</li>
-        <li>Unique predator designs</li>
-        <li>Engineered for athletes & everyday warriors</li>
-      </ul>
-    </div>
-  </section>
+    <!-- About -->
+    <section id="about" class="section">
+      <div class="container about-wrap glass">
+        <div>
+          <h2>About Untamed Spirits</h2>
+          <p>We design gear that looks sharp and performs harder. Moisture-wicking, four-way stretch, reinforced seams — so you feel confident under the bar and clean outside the gym.</p>
+        </div>
+        <ul class="bullets">
+          <li>Premium performance fabric</li>
+          <li>Athletic cut, true to size</li>
+          <li>Limited seasonal drops</li>
+        </ul>
+      </div>
+    </section>
 
-  <!-- Hero2 -->
-  <section id="hero2" class="hero hero-alt section">
-    <div class="container">
-      <h1 class="slogan">Unleash Your Untamed Spirit</h1>
-      <a href="#shop" class="btn btn-primary btn-hero">Shop Now</a>
-    </div>
-  </section>
+    <!-- Contact -->
+    <section id="contact" class="section">
+      <div class="container contact-grid">
+        <div>
+          <h2>Contact</h2>
+          <p>Questions, wholesale, or collabs? Let’s talk.</p>
+        </div>
+        <form id="contactForm" class="form glass">
+          <input type="text" name="name" placeholder="Your name" required>
+          <input type="email" name="email" placeholder="you@email.com" required>
+          <textarea name="message" rows="4" placeholder="Message" required></textarea>
+          <button class="btn btn-primary" type="submit">Send</button>
+        </form>
+      </div>
+    </section>
+  </main>
 
-  <!-- Contact -->
-  <section id="contact" class="section contact">
-    <div class="container">
-      <h2>Contact Us</h2>
-      <form id="contact-form">
-        <input type="text" placeholder="Name" required />
-        <input type="email" placeholder="Email" required />
-        <textarea placeholder="Message" required></textarea>
-        <button type="submit" class="btn btn-primary">Send</button>
-      </form>
-    </div>
-  </section>
-
-  <!-- Footer -->
   <footer class="footer">
-    <div class="container">
-      <p>&copy; <span id="year"></span> Untamed Spirits. All Rights Reserved.</p>
-      <a href="https://www.instagram.com/untamedspiritsllc" target="_blank">Follow us on Instagram</a>
+    <div class="container foot-row">
+      <div class="foot-brand">© <span id="year"></span> Untamed Spirits</div>
+      <a class="ig" target="_blank"
+         href="https://www.instagram.com/untamedspiritsllc?igsh=MW5lemR5dXdqeGM0Mg%3D%3D&utm_source=qr">Instagram @untamedspiritsllc</a>
     </div>
   </footer>
 
-  <!-- Cart Drawer -->
-  <aside id="cart" class="cart">
-    <div class="cart-header">
-      <h2>Your Cart</h2>
-      <button id="close-cart">&times;</button>
-    </div>
-    <div id="cart-items" class="cart-items"></div>
-    <div class="cart-footer">
-      <p>Total: $<span id="cart-total">0.00</span></p>
-      <button class="btn btn-primary">Checkout</button>
-    </div>
-  </aside>
-
-  <!-- Product Modal -->
-  <div id="product-modal" class="modal">
-    <div class="modal-content">
-      <span id="close-modal" class="close">&times;</span>
-      <img id="modal-img" src="" alt="" />
-      <h2 id="modal-title"></h2>
-      <p id="modal-desc"></p>
-      <p id="modal-price"></p>
-      <button id="add-to-cart" class="btn btn-primary">Add to Cart</button>
+  <!-- Modal -->
+  <div id="productModal" class="modal" aria-hidden="true">
+    <div class="modal-card">
+      <button id="modalClose" class="icon-btn close" aria-label="Close">✕</button>
+      <div id="modalBody"></div>
     </div>
   </div>
 
-  <script src="script.js"></script>
+  <!-- Cart drawer -->
+  <aside id="cartDrawer" class="cart" aria-hidden="true">
+    <header class="cart-head">
+      <h3>Your Cart</h3>
+      <button id="closeCart" class="icon-btn" aria-label="Close cart">✕</button>
+    </header>
+    <div id="cartItems" class="cart-items"></div>
+    <div class="cart-foot">
+      <div class="total">Total: $<span id="cartTotal">0.00</span></div>
+      <button class="btn btn-primary" id="checkoutBtn">Checkout</button>
+    </div>
+  </aside>
+
+  <script src="script.js" defer></script>
 </body>
 </html>
