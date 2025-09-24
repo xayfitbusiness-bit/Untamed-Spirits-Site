@@ -1,175 +1,87 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Untamed Spirits — Gym Wear</title>
-  <meta name="description" content="Untamed Spirits: modern gym wear with apex predator artwork. Performance fabrics built to lift." />
-  <meta name="theme-color" content="#0b0b0b">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Untamed Spirits | Apex Series</title>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <!-- Promo -->
-  <div class="bar">
-    <div class="container bar-inner">
-      <span>🔥 New drop live: Apex Series</span>
-      <a href="#shop" class="bar-link">Shop now</a>
-    </div>
+  <!-- Promo bar -->
+  <div class="promo-bar">
+    🔥 New drop live: Apex Series <a href="#shop">Shop now</a>
   </div>
 
+  <!-- Header -->
   <header class="site-header">
-    <nav class="nav container">
-      <a class="brand" href="#home">Untamed Spirits</a>
-      <ul class="nav-links" id="navLinks">
+    <div class="logo">Untamed Spirits</div>
+    <nav class="nav">
+      <ul>
         <li><a href="#shop">Shop</a></li>
         <li><a href="#about">About</a></li>
         <li><a href="#lookbook">Lookbook</a></li>
         <li><a href="#contact">Contact</a></li>
       </ul>
-      <div class="nav-actions">
-        <button id="cartBtn" aria-label="Cart">Cart (<span id="cartCount">0</span>)</button>
-        <button id="mobileMenuBtn" class="mobile-menu" aria-label="Open menu">☰</button>
-      </div>
     </nav>
+    <button class="cart-toggle">Cart (<span id="cart-count">0</span>)</button>
   </header>
 
-  <main>
-    <!-- Hero -->
-    <section class="hero" id="home">
-      <div class="container hero-grid">
-        <div class="hero-copy">
-          <h1>Train Like a Predator</h1>
-          <p class="sub">Performance tees with apex artwork on the back and a clean logo on the chest. Built for heavy lifts and daily hustle.</p>
-          <div class="hero-actions">
-            <a href="#shop" class="btn-primary">Shop the Collection</a>
-            <a href="#lookbook" class="btn-secondary">See Lookbook</a>
-          </div>
-        </div>
-        <div class="hero-image">
-          <img data-hero src="assets/images/model-steps-sit-1.jpg" alt="Untamed Spirits athletic tee — outdoor look" loading="eager">
-        </div>
-      </div>
+  <!-- Hero -->
+  <section class="hero">
+    <h1>Train Like a Predator</h1>
+    <p>Performance tees with apex artwork on the back and a clean logo on the chest. Built for heavy lifts and daily hustle.</p>
+    <a href="#shop" class="btn">Shop the Collection</a>
+    <a href="#lookbook" class="btn secondary">See Lookbook</a>
+    <img src="assets/images/hero.jpg" alt="Hero Model" class="hero-img" />
+  </section>
 
-      <!-- USP strip -->
-      <div class="usp">
-        <div class="container usp-row">
-          <div class="usp-item"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l4 8 8 1-6 6 2 9-8-4-8 4 2-9-6-6 8-1z"/></svg><span>Moisture-wicking</span></div>
-          <div class="usp-item"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h18M12 3v18"/></svg><span>Reinforced seams</span></div>
-          <div class="usp-item"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16v10H4zM2 9h20"/></svg><span>Limited runs</span></div>
-          <div class="usp-item"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/></svg><span>Easy returns</span></div>
-        </div>
-      </div>
-    </section>
+  <!-- Shop -->
+  <section id="shop" class="shop-section">
+    <h2>Featured Collection</h2>
+    <div id="product-grid" class="product-grid"></div>
+  </section>
 
-    <!-- Featured Collection -->
-    <section class="container" id="shop">
-      <h2 class="section-title">Featured Collection</h2>
-      <p class="section-sub">Premium performance tees. Same untamed energy — new apex designs.</p>
-
-      <!-- Design filter -->
-      <div class="filters">
-        <button class="chip is-active" data-filter="all">All</button>
-        <button class="chip" data-filter="gorilla">Gorilla</button>
-        <button class="chip" data-filter="wolf">Wolf</button>
-        <button class="chip" data-filter="bear">Bear</button>
-      </div>
-
-      <div id="productGrid" class="product-grid" aria-live="polite"><!-- Filled by script.js --></div>
-    </section>
-
-    <!-- Lookbook -->
-    <section id="lookbook" class="container lookbook">
-      <h2 class="section-title">Lookbook</h2>
-      <p class="section-sub">From trail to gym—how athletes rock Untamed Spirits.</p>
-      <div class="lookbook-grid reveal">
-        <img data-look1 src="assets/images/bench-three-tees.jpg"  alt="Untamed Spirits tees on bench" loading="lazy">
-        <img data-look2 src="assets/images/model-forest-xavier.jpg" alt="Untamed Spirits tee among leaves" loading="lazy">
-        <img data-look3 src="assets/images/rock-three-tees.jpg"  alt="Untamed Spirits tees on rock" loading="lazy">
-      </div>
-    </section>
-
-    <!-- About -->
-    <section id="about" class="container about">
-      <h2 class="section-title">About Untamed Spirits</h2>
-      <div class="about-grid">
-        <p>Untamed Spirits is for the ones who show up—rain or shine. Our apparel blends sharp design with athlete-ready performance so you feel confident under the bar and clean outside the gym.</p>
-        <ul>
-          <li>Premium moisture-wicking fabric</li>
-          <li>Four-way stretch, athletic cut</li>
-          <li>Limited seasonal drops of apex artwork</li>
-        </ul>
-      </div>
-    </section>
-
-    <!-- Newsletter -->
-    <section class="newsletter">
-      <div class="container news-wrap">
-        <div>
-          <h3>Join the Pack</h3>
-          <p class="muted">Get early access to drops and limited runs.</p>
-        </div>
-        <form class="news-form" id="newsForm">
-          <input type="email" id="newsEmail" placeholder="you@email.com" required>
-          <button class="btn-primary" type="submit">Subscribe</button>
-        </form>
-      </div>
-    </section>
-
-    <!-- Contact -->
-    <section id="contact" class="container contact">
-      <h2 class="section-title">Contact</h2>
-      <p>Questions, wholesale inquiries, or collabs? Send us a message.</p>
-      <form id="contactForm" class="contact-form">
-        <label> Name <input type="text" name="name" required></label>
-        <label> Email <input type="email" name="email" required></label>
-        <label> Message <textarea name="message" rows="4" required></textarea></label>
-        <button type="submit" class="btn-primary">Send</button>
-      </form>
-    </section>
-  </main>
-
-  <footer class="site-footer">
-    <div class="container footer-grid">
-      <div>
-        <strong>Untamed Spirits</strong>
-        <p class="muted">Gym wear • Apex designs • Built to lift</p>
-      </div>
-      <ul class="social">
-        <li><a href="#" aria-label="Instagram">IG</a></li>
-        <li><a href="#" aria-label="TikTok">TT</a></li>
-        <li><a href="#" aria-label="YouTube">YT</a></li>
-      </ul>
-      <div>© <span id="year"></span> Untamed Spirits</div>
+  <!-- Lookbook -->
+  <section id="lookbook" class="lookbook">
+    <h2>Lookbook</h2>
+    <div class="lookbook-grid">
+      <img src="assets/images/look1.jpg" alt="Look 1" />
+      <img src="assets/images/look2.jpg" alt="Look 2" />
+      <img src="assets/images/look3.jpg" alt="Look 3" />
     </div>
+  </section>
+
+  <!-- About -->
+  <section id="about" class="about">
+    <h2>About Untamed Spirits</h2>
+    <p>
+      Our mission is simple: embody the apex predator mindset inside and outside
+      the gym. Every piece is designed for strength, confidence, and resilience.
+    </p>
+  </section>
+
+  <!-- Contact -->
+  <section id="contact" class="contact">
+    <h2>Contact Us</h2>
+    <form>
+      <input type="text" placeholder="Your Name" required />
+      <input type="email" placeholder="Your Email" required />
+      <textarea placeholder="Your Message" required></textarea>
+      <button type="submit">Send</button>
+    </form>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p>&copy; <span id="year"></span> Untamed Spirits</p>
   </footer>
 
-  <!-- Product detail modal -->
-  <div id="productModal" class="modal" aria-hidden="true">
-    <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-      <button class="modal-close" id="modalClose" aria-label="Close">✕</button>
-      <div class="modal-body" id="modalBody"></div>
-    </div>
-  </div>
+  <!-- Product Modal -->
+  <div id="product-modal" class="modal hidden"></div>
 
-  <!-- Cart drawer -->
-  <aside id="cartDrawer" class="cart-drawer" aria-hidden="true">
-    <header class="cart-header">
-      <h3>Your Cart</h3>
-      <button id="closeCart" aria-label="Close cart">Close</button>
-    </header>
-    <div id="cartItems" class="cart-items"></div>
-    <div class="cart-footer">
-      <div class="cart-total">Total: $<span id="cartTotal">0.00</span></div>
-      <button id="checkoutBtn" class="btn-primary">Checkout</button>
-    </div>
-  </aside>
+  <!-- Cart Drawer -->
+  <div id="cart-drawer" class="cart-drawer hidden"></div>
 
-  <!-- Back to top -->
-  <button id="toTop" class="to-top" aria-label="Back to top">↑</button>
-
-  <script src="script.js"></script>
+  <script src="script.js" defer></script>
 </body>
 </html>
