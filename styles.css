@@ -183,3 +183,14 @@ p{color:var(--muted)}
 @media (max-width: 600px){
   .product img { max-width:160px; height:160px; }
 }
+/* --- Product and Cart Borders --- */
+.product {
+  border: 2px solid #000;   /* black border */
+  border-radius: 8px;       /* slightly rounded corners */
+  padding: 15px;
+}
+
+.cart-item {
+  border-bottom: 2px solid #000; /* black divider for each cart item */
+  padding: 10px 0;
+}
