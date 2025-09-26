@@ -97,3 +97,43 @@ p{color:var(--muted)}
   .detail{grid-template-columns:1fr}
   .lookbook-grid{grid-template-columns:1fr}
 }
+/* --- Product Grid Styling --- */
+.product {
+  text-align: center;
+  padding: 15px;
+}
+
+.product img {
+  width: 220px;       /* consistent image size */
+  height: 220px;
+  object-fit: contain; /* keeps logos from stretching */
+  display: block;
+  margin: 0 auto 10px; /* centers image */
+}
+
+.product h2 {
+  font-size: 1.2rem;
+  margin-bottom: 10px;
+}
+
+.product .btn {
+  display: inline-block;
+  padding: 10px 20px;
+  background: #000;
+  color: #fff;
+  text-decoration: none;
+  border-radius: 6px;
+  transition: background 0.3s ease;
+}
+
+.product .btn:hover {
+  background: #444;
+}
+
+/* Mobile tweak */
+@media (max-width: 600px) {
+  .product img {
+    width: 160px;
+    height: 160px;
+  }
+}
