@@ -203,6 +203,143 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 </script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const grid = document.getElementById('productGrid');
+  const cartBtn = document.getElementById('cartBtn');
+  const cart = document.getElementById('cartDrawer');
+  const closeCart = document.getElementById('closeCart');
+  const cartItemsEl = document.getElementById('cartItems');
+  const cartTotalEl = document.getElementById('cartTotal');
+  const checkoutBtn = document.getElementById('checkoutBtn');
+  const modal = document.getElementById('productModal');
+  const modalClose = document.getElementById('modalClose');
+  const modalBody = document.getElementById('modalBody');
+
+  let cartItems = [];
+  let selectedStripeLink = null;
+
+  // Build "View" + "Add to Cart" under each product, and also wire Buy Now
+  grid.querySelectorAll('.product').forEach(card => {
+    const buy = card.querySelector('a[href^="https://buy.stripe.com"]');
+    const title = card.querySelector('h2')?.textContent?.trim() || 'Item';
+
+    // When user clicks Buy Now, also update global Checkout
+    if (buy) {
+      buy.addEventListener('click', () => {
+        selectedStripeLink = buy.href;
+        checkoutBtn.textContent = `Checkout — ${title}`;
+      });
+    }
+
+    // Add actions row only if it doesn't exist yet
+    if (!card.querySelector('.actions')) {
+      const actions = document.createElement('div');
+      actions.className = 'actions';
+
+      // View (opens modal)
+      const viewBtn = document.createElement('button');
+      viewBtn.className = 'btn btn-ghost';
+      viewBtn.type = 'button';
+      viewBtn.textContent = 'View';
+      viewBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const imgSrc = card.querySelector('img')?.getAttribute('src') || '';
+        modalBody.innerHTML = `
+          <div class="detail" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+            <div><img src="${imgSrc}" alt="${title}" style="width:100%;height:100%;object-fit:contain;border-radius:12px;border:1px solid #182033"></div>
+            <div>
+              <h3 style="margin:0 0 8px;font-size:1.25rem;">${title}</h3>
+              <p>Premium athletic fit muscle tee. Moisture-wicking, four-way stretch.</p>
+              <div style="display:flex;gap:8px;margin-top:12px;">
+                <a class="btn" href="${buy?.href || '#'}" target="_blank">Buy Now</a>
+                <button type="button" class="btn" id="modalAddToCart">Add to Cart</button>
+              </div>
+            </div>
+          </div>`;
+        modal.setAttribute('aria-hidden', 'false');
+
+        const modalAdd = document.getElementById('modalAddToCart');
+        if (modalAdd && buy) {
+          modalAdd.addEventListener('click', () => {
+            addToCart(title, buy.href);
+            modal.setAttribute('aria-hidden', 'true');
+          });
+        }
+      });
+
+      // Add to Cart
+      const addBtn = document.createElement('button');
+      addBtn.className = 'btn';
+      addBtn.type = 'button';
+      addBtn.textContent = 'Add to Cart';
+      addBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (buy) addToCart(title, buy.href);
+      });
+
+      actions.append(viewBtn, addBtn);
+      card.appendChild(actions);
+    }
+  });
+
+  function addToCart(title, link) {
+    cartItems.push({ title, link });
+    selectedStripeLink = link;                       // set selection
+    checkoutBtn.textContent = `Checkout — ${title}`; // update label
+    renderCart();
+    cart.setAttribute('aria-hidden', 'false');       // open cart
+  }
+
+  function renderCart() {
+    cartItemsEl.innerHTML = cartItems.map((item, i) => `
+      <div class="cart-row" data-i="${i}" style="display:flex;justify-content:space-between;align-items:center;margin:6px 0;">
+        <span>${item.title}</span>
+        <button class="icon-btn remove" title="Remove">✕</button>
+      </div>
+    `).join('');
+    cartTotalEl.textContent = (0).toFixed(2);       // Stripe handles real pricing
+
+    cartItemsEl.querySelectorAll('.remove').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const row = e.target.closest('.cart-row');
+        const i = Number(row?.dataset.i);
+        if (!Number.isNaN(i)) {
+          cartItems.splice(i, 1);
+          if (cartItems.length) {
+            const last = cartItems[cartItems.length - 1];
+            selectedStripeLink = last.link;
+            checkoutBtn.textContent = `Checkout — ${last.title}`;
+          } else {
+            selectedStripeLink = null;
+            checkoutBtn.textContent = 'Checkout';
+          }
+          renderCart();
+        }
+      });
+    });
+  }
+
+  // Cart open/close
+  cartBtn?.addEventListener('click', () => cart.setAttribute('aria-hidden', 'false'));
+  closeCart?.addEventListener('click', () => cart.setAttribute('aria-hidden', 'true'));
+
+  // Modal close
+  modalClose?.addEventListener('click', () => modal.setAttribute('aria-hidden', 'true'));
+  modal.addEventListener('click', (e) => { if (e.target === modal) modal.setAttribute('aria-hidden', 'true'); });
+
+  // Global Checkout: open last selected Stripe link
+  checkoutBtn.addEventListener('click', (e) => {
+    if (!selectedStripeLink) {
+      e.preventDefault();
+      alert('Please add a product to the cart or select one first.');
+      return;
+    }
+    e.preventDefault();
+    window.open(selectedStripeLink, '_blank');
+  });
+});
+</script>
 
 </body>
 </html>
