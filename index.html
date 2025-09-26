@@ -50,52 +50,56 @@ index <!doctype html>
     </section>
 
     <!-- Shop -->
-    <section id="shop" class="section">
-      <div class="container">
-        <div class="section-head">
-          <h2>Featured Tees</h2>
-          <div class="filters">
-            <button class="filter chip is-active" data-filter="all">All</button>
-            <button class="filter chip" data-filter="big-cat">Big Cats</button>
-            <button class="filter chip" data-filter="power">Power</button>
-            <button class="filter chip" data-filter="pack">Pack</button>
-          </div>
-        </div>
-        <div id="productGrid" class="grid">
-  <div class="product">
-    <img src="gorilla-logo.jpg" alt="Gorilla Muscle Tee">
-    <h2>Gorilla Muscle Tee</h2>
-    <a href="https://buy.stripe.com/00wfZhf94gYv49U4nJ14405" target="_blank" class="btn">Buy Now</a>
-  </div>
-
-  <div class="product">
-    <img src="wolf-logo.jpg" alt="Wolf Muscle Tee">
-    <h2>Wolf Muscle Tee</h2>
-    <a href="https://buy.stripe.com/00w8wPe508rZ8qa2fB14404" target="_blank" class="btn">Buy Now</a>
-  </div>
-
-  <div class="product">
-    <img src="tiger-logo.jpg" alt="Tiger Muscle Tee">
-    <h2>Tiger Muscle Tee</h2>
-    <a href="https://buy.stripe.com/eVq6oH3qmcIffSCbQb14403" target="_blank" class="btn">Buy Now</a>
-  </div>
-
-  <div class="product">
-    <img src="bear-logo.jpg" alt="Bear Muscle Tee">
-    <h2>Bear Muscle Tee</h2>
-    <a href="https://buy.stripe.com/cNicN5d0W4bJ9ue7zV14402" target="_blank" class="btn">Buy Now</a>
-  </div>
-
-  <div class="product">
-    <img src="lion-logo.jpg" alt="Lion Muscle Tee">
-    <h2>Lion Muscle Tee</h2>
-    <a href="https://buy.stripe.com/fZu8wP2mi8rZbCmf2n14401" target="_blank" class="btn">Buy Now</a>
-  </div>
-</div>
-
-
+<section id="shop" class="section">
+  <div class="container">
+    <div class="section-head">
+      <h2>Featured Tees</h2>
+      <div class="filters">
+        <button class="filter chip is-active" data-filter="all">All</button>
+        <button class="filter chip" data-filter="big-cat">Big Cats</button>
+        <button class="filter chip" data-filter="power">Power</button>
+        <button class="filter chip" data-filter="pack">Pack</button>
       </div>
-    </section>
+    </div>
+
+    <!-- Replace the empty productGrid with this -->
+    <div id="productGrid" class="grid">
+      <!-- Big Cats -->
+      <div class="product big-cat">
+        <img src="lion-logo.jpg" alt="Lion Muscle Tee">
+        <h2>Lion Muscle Tee</h2>
+        <a href="https://buy.stripe.com/00wfZhf94gYv49U4nJ14405" class="btn">Buy Now</a>
+      </div>
+
+      <div class="product big-cat">
+        <img src="tiger-logo.jpg" alt="Tiger Muscle Tee">
+        <h2>Tiger Muscle Tee</h2>
+        <a href="https://buy.stripe.com/eVq6oH3qmcIffSCbQb14403" class="btn">Buy Now</a>
+      </div>
+
+      <!-- Power -->
+      <div class="product big-cat">
+        <img src="bear-logo.jpg" alt="Bear Muscle Tee">
+        <h2>Bear Muscle Tee</h2>
+        <a href="https://buy.stripe.com/00w8wPe508rZ8qa2fB14404" class="btn">Buy Now</a>
+      </div>
+      
+      <div class="product power">
+        <img src="gorilla-logo.jpg" alt="Gorilla Muscle Tee">
+        <h2>Gorilla Muscle Tee</h2>
+        <a href="https://buy.stripe.com/fZu8wP2mi8rZbCmf2n14401" class="btn">Buy Now</a>
+      </div>
+
+      <!-- Pack -->
+      <div class="product pack">
+        <img src="wolf-logo.jpg" alt="Wolf Muscle Tee">
+        <h2>Wolf Muscle Tee</h2>
+        <a href="https://buy.stripe.com/00wfZhf94gYv49U4nJ14405" class="btn">Buy Now</a>
+      </div>
+    </div>
+  </div>
+</section>
+
 
     <!-- Lookbook -->
     <section id="lookbook" class="section">
@@ -555,6 +559,27 @@ document.querySelectorAll('.modal').forEach(modal => {
     if (e.target.classList.contains('modal') || e.target.classList.contains('close')) {
       modal.setAttribute('aria-hidden', 'true');
     }
+  });
+});
+</script>
+<script>
+// Product filtering
+document.querySelectorAll('.filter').forEach(button => {
+  button.addEventListener('click', () => {
+    const filter = button.getAttribute('data-filter');
+
+    // update active button styling
+    document.querySelectorAll('.filter').forEach(btn => btn.classList.remove('is-active'));
+    button.classList.add('is-active');
+
+    // show/hide products
+    document.querySelectorAll('#productGrid .product').forEach(product => {
+      if (filter === 'all') {
+        product.style.display = 'block';
+      } else {
+        product.style.display = product.classList.contains(filter) ? 'block' : 'none';
+      }
+    });
   });
 });
 </script>
