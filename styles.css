@@ -137,3 +137,11 @@ p{color:var(--muted)}
     height: 160px;
   }
 }
+/* Ensure hidden overlays don't cover the page */
+.modal[aria-hidden="true"],
+.cart[aria-hidden="true"] { display: none; }
+
+/* Lookbook: keep tiles visible and tidy */
+.lookbook-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+.lookbook-grid img { display: block; width: 100%; height: 220px; object-fit: cover; border-radius: 12px; }
+
