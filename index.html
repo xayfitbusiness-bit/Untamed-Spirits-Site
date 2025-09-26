@@ -176,13 +176,12 @@ index <!doctype html>
     </div>
   </aside>
 
-  <script src="script.js" defer></script>
-  <script>
+ <script>
 document.addEventListener('DOMContentLoaded', () => {
   const checkoutBtn = document.getElementById('checkoutBtn');
   const products = document.querySelectorAll('#productGrid .product');
 
-  // Part 2: Prevent checkout until a product is selected
+  // Safety: prevent checkout if no product selected
   checkoutBtn.addEventListener('click', (e) => {
     if (!checkoutBtn.href || checkoutBtn.href.endsWith('/')) {
       e.preventDefault();
@@ -192,21 +191,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
   products.forEach(product => {
     const buyLink = product.querySelector('a[href^="https://buy.stripe.com"]');
+    const title = product.querySelector('h2').textContent;
 
-    // when a product card is clicked, update the global checkout button
-    product.addEventListener('click', (e) => {
-      // don’t override if they click the actual Buy Now button
-      if (e.target.closest('a')) return;
-
-      if (buyLink && checkoutBtn) {
+    if (buyLink && checkoutBtn) {
+      buyLink.addEventListener('click', () => {
+        // Update checkout button to match this product
         checkoutBtn.href = buyLink.href;
-        checkoutBtn.textContent = `Checkout — ${product.querySelector('h2').textContent}`;
-      }
-    });
+        checkoutBtn.textContent = `Checkout — ${title}`;
+      });
+    }
   });
 });
 </script>
-
 
 </body>
 </html>
