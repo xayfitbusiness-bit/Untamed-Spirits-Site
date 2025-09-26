@@ -169,7 +169,7 @@ index <!doctype html>
     <div id="cartItems" class="cart-items"></div>
     <div class="cart-foot">
       <div class="total">Total: $<span id="cartTotal">0.00</span></div>
-      <a class="btn btn-primary" id="checkoutBtn" href="#" target="_blank">
+      <a class="btn btn-primary" id="checkoutBtn" href="" target="_blank">
   Checkout
 </a>
 
@@ -178,9 +178,17 @@ index <!doctype html>
 
   <script src="script.js" defer></script>
   <script>
-  document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', () => {
   const checkoutBtn = document.getElementById('checkoutBtn');
   const products = document.querySelectorAll('#productGrid .product');
+
+  // Part 2: Prevent checkout until a product is selected
+  checkoutBtn.addEventListener('click', (e) => {
+    if (!checkoutBtn.href || checkoutBtn.href.endsWith('/')) {
+      e.preventDefault();
+      alert("Please select a product before checking out!");
+    }
+  });
 
   products.forEach(product => {
     const buyLink = product.querySelector('a[href^="https://buy.stripe.com"]');
@@ -198,6 +206,7 @@ index <!doctype html>
   });
 });
 </script>
+
 
 </body>
 </html>
