@@ -155,3 +155,31 @@ p{color:var(--muted)}
   opacity: 1 !important; 
   transform: none !important; 
 }
+/* Borders + polish */
+.product {
+  border: 1px solid #1a2233;           /* add border */
+  border-radius: 14px;
+  background: linear-gradient(180deg,#0e1422 0%,#0e121e 100%);
+}
+
+.product:hover {
+  box-shadow: 0 10px 30px rgba(0,0,0,.35);
+}
+
+.lookbook-grid img {
+  border: 1px solid #1a2233;           /* ensure lookbook tiles have a border */
+  border-radius: 12px;
+}
+
+/* Optional: make product image sizes consistent */
+.product img {
+  width: 100%;
+  max-width: 220px;
+  height: 220px;
+  object-fit: contain;
+  display: block;
+  margin: 0 auto 12px;
+}
+@media (max-width: 600px){
+  .product img { max-width:160px; height:160px; }
+}
