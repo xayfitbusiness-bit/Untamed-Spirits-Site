@@ -169,14 +169,35 @@ index <!doctype html>
     <div id="cartItems" class="cart-items"></div>
     <div class="cart-foot">
       <div class="total">Total: $<span id="cartTotal">0.00</span></div>
-      <a class="btn btn-primary" id="checkoutBtn" href="https://buy.stripe.com/fZu8wP2mi8rZbCmf2n14401" target="_blank">
+      <a class="btn btn-primary" id="checkoutBtn" href="#" target="_blank">
   Checkout
 </a>
-
 
     </div>
   </aside>
 
   <script src="script.js" defer></script>
+  <script>
+  document.addEventListener('DOMContentLoaded', () => {
+  const checkoutBtn = document.getElementById('checkoutBtn');
+  const products = document.querySelectorAll('#productGrid .product');
+
+  products.forEach(product => {
+    const buyLink = product.querySelector('a[href^="https://buy.stripe.com"]');
+
+    // when a product card is clicked, update the global checkout button
+    product.addEventListener('click', (e) => {
+      // don’t override if they click the actual Buy Now button
+      if (e.target.closest('a')) return;
+
+      if (buyLink && checkoutBtn) {
+        checkoutBtn.href = buyLink.href;
+        checkoutBtn.textContent = `Checkout — ${product.querySelector('h2').textContent}`;
+      }
+    });
+  });
+});
+</script>
+
 </body>
 </html>
