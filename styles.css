@@ -193,4 +193,11 @@ p{color:var(--muted)}
 .cart-item {
   border-bottom: 2px solid #000; /* black divider for each cart item */
   padding: 10px 0;
+/* Black border around product tiles */
+#productGrid .product {
+  border: 2px solid #000;
+  border-radius: 12px;
+}
+
+  
 }
