@@ -62,41 +62,8 @@ index <!doctype html>
       </div>
     </div>
 
-    <!-- Replace the empty productGrid with this -->
-    <div id="productGrid" class="grid">
-      <!-- Big Cats -->
-      <div class="product big-cat">
-        <img src="lion-logo.jpg" alt="Lion Muscle Tee">
-        <h2>Lion Muscle Tee</h2>
-        <a href="https://buy.stripe.com/00wfZhf94gYv49U4nJ14405" class="btn">Buy Now</a>
-      </div>
+<div id="productGrid" class="grid"></div>
 
-      <div class="product big-cat">
-        <img src="tiger-logo.jpg" alt="Tiger Muscle Tee">
-        <h2>Tiger Muscle Tee</h2>
-        <a href="https://buy.stripe.com/eVq6oH3qmcIffSCbQb14403" class="btn">Buy Now</a>
-      </div>
-
-      <!-- Power -->
-      <div class="product power">
-        <img src="bear-logo.jpg" alt="Bear Muscle Tee">
-        <h2>Bear Muscle Tee</h2>
-        <a href="https://buy.stripe.com/00w8wPe508rZ8qa2fB14404" class="btn">Buy Now</a>
-      </div>
-      
-      <div class="product power">
-        <img src="gorilla-logo.jpg" alt="Gorilla Muscle Tee">
-        <h2>Gorilla Muscle Tee</h2>
-        <a href="https://buy.stripe.com/fZu8wP2mi8rZbCmf2n14401" class="btn">Buy Now</a>
-      </div>
-
-      <!-- Pack -->
-      <div class="product pack">
-        <img src="wolf-logo.jpg" alt="Wolf Muscle Tee">
-        <h2>Wolf Muscle Tee</h2>
-        <a href="https://buy.stripe.com/cNicN5d0W4bJ9ue7zV14402" class="btn">Buy Now</a>
-      </div>
-    </div>
   </div>
 </section>
 
@@ -181,8 +148,177 @@ index <!doctype html>
   </aside>
 
  <script>
+<script>
 document.addEventListener('DOMContentLoaded', () => {
-  const checkoutBtn = document.getElementById('checkoutBtn');
+  // ====== DATA (edit as needed) ======
+  // Stripe links you already have (kept the same)
+  const STRIPE = {
+    'Lion Muscle Tee':   'https://buy.stripe.com/00wfZhf94gYv49U4nJ14405',
+    'Tiger Muscle Tee':  'https://buy.stripe.com/eVq6oH3qmcIffSCbQb14403',
+    'Bear Muscle Tee':   'https://buy.stripe.com/00w8wPe508rZ8qa2fB14404',
+    'Gorilla Muscle Tee': 'https://buy.stripe.com/fZu8wP2mi8rZbCmf2n14401',
+    'Wolf Muscle Tee':   'https://buy.stripe.com/cNicN5d0W4bJ9ue7zV14402',
+  };
+
+  // Per-size prices (Tiger & Wolf = $35, others = $30; 2XL +$2)
+  const PRODUCTS = [
+    { title:'Lion Muscle Tee',    img:'lion-logo.jpg',    category:'big-cat',
+      variantPrices:{ XS:30, S:30, M:30, L:30, XL:30, '2XL':32 } },
+    { title:'Tiger Muscle Tee',   img:'tiger-logo.jpg',   category:'big-cat',
+      variantPrices:{ XS:35, S:35, M:35, L:35, XL:35, '2XL':37 } },
+    { title:'Bear Muscle Tee',    img:'bear-logo.jpg',    category:'power',
+      variantPrices:{ XS:30, S:30, M:30, L:30, XL:30, '2XL':32 } },
+    { title:'Gorilla Muscle Tee', img:'gorilla-logo.jpg', category:'power',
+      variantPrices:{ XS:30, S:30, M:30, L:30, XL:30, '2XL':32 } },
+    { title:'Wolf Muscle Tee',    img:'wolf-logo.jpg',    category:'pack',
+      variantPrices:{ XS:35, S:35, M:35, L:35, XL:35, '2XL':37 } },
+  ];
+
+  // ====== ELEMENTS ======
+  const grid         = document.getElementById('productGrid');
+  const cartBtn      = document.getElementById('cartBtn');
+  const cartDrawer   = document.getElementById('cartDrawer');
+  const closeCart    = document.getElementById('closeCart');
+  const cartItemsEl  = document.getElementById('cartItems');
+  const cartTotalEl  = document.getElementById('cartTotal');
+  const checkoutBtn  = document.getElementById('checkoutBtn');
+
+  // ====== HELPERS ======
+  const money = n => n.toLocaleString('en-US',{style:'currency',currency:'USD'});
+
+  // ====== RENDER PRODUCTS (size select + live price + Add to Cart + Buy Now) ======
+  function renderProducts(){
+    grid.innerHTML = '';
+    PRODUCTS.forEach(p => {
+      const defaultPrice = p.variantPrices.M ?? Object.values(p.variantPrices)[0];
+      const card = document.createElement('div');
+      card.className = `product ${p.category}`;
+      card.style.border = '2px solid #000';   // black border
+      card.style.borderRadius = '12px';
+      card.style.padding = '12px';
+      card.style.textAlign = 'center';
+
+      card.innerHTML = `
+        <img src="${p.img}" alt="${p.title}" style="width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:10px;">
+        <h2 style="margin:8px 0 4px">${p.title}</h2>
+        <div class="price" data-price>${money(defaultPrice)}</div>
+        <div class="actions" style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:8px">
+          <select class="size" aria-label="Choose size" style="padding:6px;border:1px solid #ccc;border-radius:6px">
+            <option value="">Select size…</option>
+            ${Object.keys(p.variantPrices).map(s=>`<option>${s}</option>`).join('')}
+          </select>
+          <button class="btn add">Add to Cart</button>
+          <a class="btn" href="${STRIPE[p.title] || '#'}" target="_blank" rel="noopener">Buy Now</a>
+        </div>
+      `;
+
+      const sizeEl   = card.querySelector('.size');
+      const priceEl  = card.querySelector('[data-price]');
+      const addBtn   = card.querySelector('.add');
+
+      function updatePrice(){
+        const sz = sizeEl.value;
+        const base = p.variantPrices[sz] ?? defaultPrice;
+        priceEl.textContent = money(base);
+      }
+      sizeEl.addEventListener('change', updatePrice);
+
+      addBtn.addEventListener('click', (e)=>{
+        e.preventDefault();
+        const sz = sizeEl.value;
+        if(!sz){ alert('Please select a size.'); sizeEl.focus(); return; }
+        const unit = p.variantPrices[sz];
+        addToCart({ title:p.title, size:sz, unitPrice:unit, stripe:STRIPE[p.title] });
+      });
+
+      grid.appendChild(card);
+    });
+  }
+
+  // ====== CART ======
+  let cart = []; // {title,size,unitPrice,qty,stripe}
+
+  function addToCart(item){
+    const existing = cart.find(i => i.title===item.title && i.size===item.size);
+    if(existing){ existing.qty += 1; }
+    else { cart.push({...item, qty:1}); }
+    renderCart();
+    cartDrawer.setAttribute('aria-hidden','false');
+  }
+
+  function removeLine(idx){
+    cart.splice(idx,1);
+    renderCart();
+  }
+
+  function totals(){
+    const subtotal = cart.reduce((s,i)=>s + i.qty*i.unitPrice, 0);
+    return { subtotal, total:subtotal };
+  }
+
+  function renderCart(){
+    if(cart.length===0){
+      cartItemsEl.innerHTML = `<div style="color:#666">Cart empty</div>`;
+      cartTotalEl.textContent = (0).toFixed(2);
+      checkoutBtn.textContent = 'Checkout';
+      checkoutBtn.onclick = (e)=>{ e.preventDefault(); alert('Please add a product first.'); };
+      return;
+    }
+
+    cartItemsEl.innerHTML = cart.map((i,idx)=>`
+      <div class="cart-row" style="display:flex;justify-content:space-between;align-items:center;margin:6px 0;gap:10px;">
+        <div>
+          <div style="font-weight:700">${i.title}</div>
+          <div style="font-size:.9rem;color:#555">Size: ${i.size} · ${money(i.unitPrice)}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span>x${i.qty}</span>
+          <strong>${money(i.qty*i.unitPrice)}</strong>
+          <button class="icon-btn" aria-label="Remove" data-remove="${idx}">✕</button>
+        </div>
+      </div>
+    `).join('');
+
+    cartItemsEl.querySelectorAll('[data-remove]').forEach(btn=>{
+      btn.addEventListener('click', ()=> removeLine(Number(btn.getAttribute('data-remove'))));
+    });
+
+    const { total } = totals();
+    cartTotalEl.textContent = total.toFixed(2);
+
+    // Checkout opens the Stripe link for the most recently added product (keeps your flow)
+    const last = cart[cart.length-1];
+    checkoutBtn.textContent = `Checkout — ${last.title}`;
+    checkoutBtn.onclick = (e)=>{
+      e.preventDefault();
+      if(!last?.stripe){ alert('Missing Stripe link'); return; }
+      window.open(last.stripe,'_blank','noopener');
+    };
+  }
+
+  // Drawer open/close
+  cartBtn?.addEventListener('click', ()=> cartDrawer.setAttribute('aria-hidden','false'));
+  closeCart?.addEventListener('click', ()=> cartDrawer.setAttribute('aria-hidden','true'));
+
+  // Initial render
+  renderProducts();
+  renderCart();
+
+  // Filters (keep your existing filter buttons working)
+  document.querySelectorAll('.filter').forEach(button => {
+    button.addEventListener('click', () => {
+      const filter = button.getAttribute('data-filter');
+      document.querySelectorAll('.filter').forEach(b=>b.classList.remove('is-active'));
+      button.classList.add('is-active');
+      document.querySelectorAll('#productGrid .product').forEach(prod => {
+        if (filter === 'all') prod.style.display = 'block';
+        else prod.style.display = prod.classList.contains(filter) ? 'block' : 'none';
+      });
+    });
+  });
+});
+</script>
+
   const products = document.querySelectorAll('#productGrid .product');
 
   // Safety: prevent checkout if no product selected
