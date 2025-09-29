@@ -203,7 +203,19 @@ const PRODUCTS = [
       card.style.textAlign = 'center';
 
       card.innerHTML = `
+        <button class="img-open" aria-label="Open gallery" style="all:unset;cursor:zoom-in;display:block">
         <img src="${p.img}" alt="${p.title}" style="width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:10px;">
+        </button>
+        const sizeEl   = card.querySelector('.size');
+        const priceEl  = card.querySelector('[data-price]');
+        const addBtn   = card.querySelector('.add');
+        const imgOpen = card.querySelector('.img-open');
+        imgOpen.addEventListener('click', (e) => {
+        e.preventDefault();
+        openGallery(p);
+        });
+
+
         <h2 style="margin:8px 0 4px">${p.title}</h2>
         <div class="price" data-price>${money(defaultPrice)}</div>
         <div class="actions" style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:8px">
@@ -259,6 +271,57 @@ const PRODUCTS = [
     const subtotal = cart.reduce((s,i)=>s + i.qty*i.unitPrice, 0);
     return { subtotal, total:subtotal };
   }
+
+  // ====== LIGHTBOX / GALLERY ======
+function openGallery(p){
+  const modal  = document.getElementById('productModal');
+  const body   = document.getElementById('modalBody');
+  const imgs   = Array.isArray(p.imgs) && p.imgs.length ? p.imgs : [p.img];
+
+  let idx = 0;
+  function render(){
+    body.innerHTML = `
+      <div style="display:grid;grid-template-columns:1fr;gap:12px;max-width:min(92vw,900px)">
+        <div style="position:relative">
+          <button id="prev" aria-label="Previous" style="position:absolute;left:8px;top:50%;transform:translateY(-50%);border:1px solid #000;background:#fff;padding:6px 10px;border-radius:8px;cursor:pointer">‹</button>
+          <img id="mainImg" src="${imgs[idx]}" alt="${p.title}" style="width:100%;height:auto;max-height:72vh;object-fit:contain;border-radius:12px;border:2px solid #000;background:#fff">
+          <button id="next" aria-label="Next" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);border:1px solid #000;background:#fff;padding:6px 10px;border-radius:8px;cursor:pointer">›</button>
+        </div>
+        <div class="thumbs">
+          ${imgs.map((src,i)=>`
+            <button class="thumb ${i===idx?'is-active':''}" data-i="${i}" style="all:unset;cursor:pointer;display:inline-block;margin:4px">
+              <img src="${src}" alt="thumb ${i+1}" style="width:72px;height:72px;object-fit:cover;border-radius:10px;border:2px solid ${i===idx?'#000':'#ccc'}">
+            </button>
+          `).join('')}
+        </div>
+      </div>
+    `;
+    body.querySelectorAll('.thumb').forEach(b=>{
+      b.addEventListener('click', ()=>{ idx = Number(b.dataset.i); render(); });
+    });
+    body.querySelector('#prev').onclick = ()=>{ idx = (idx-1+imgs.length)%imgs.length; render(); };
+    body.querySelector('#next').onclick = ()=>{ idx = (idx+1)%imgs.length; render(); };
+  }
+
+  render();
+  modal.setAttribute('aria-hidden','false');
+
+  function onKey(e){
+    if(e.key==='Escape'){ close(); }
+    if(e.key==='ArrowLeft'){ document.getElementById('prev')?.click(); }
+    if(e.key==='ArrowRight'){ document.getElementById('next')?.click(); }
+  }
+  document.addEventListener('keydown', onKey);
+
+  const closeBtn = document.getElementById('modalClose');
+  function close(){
+    modal.setAttribute('aria-hidden','true');
+    document.removeEventListener('keydown', onKey);
+  }
+  closeBtn?.addEventListener('click', close, { once:true });
+  modal.addEventListener('click', (e)=>{ if(e.target === modal) close(); }, { once:true });
+}
+
 
   function renderCart(){
     if(cart.length===0){
@@ -325,32 +388,7 @@ const PRODUCTS = [
   renderProducts();
   renderCart();
 });
-</script>
 
-  const products = document.querySelectorAll('#productGrid .product');
-
-  // Safety: prevent checkout if no product selected
-  checkoutBtn.addEventListener('click', (e) => {
-    if (!checkoutBtn.href || checkoutBtn.href.endsWith('/')) {
-      e.preventDefault();
-      alert("Please select a product before checking out!");
-    }
-  });
-
-  products.forEach(product => {
-    const buyLink = product.querySelector('a[href^="https://buy.stripe.com"]');
-    const title = product.querySelector('h2').textContent;
-
-    if (buyLink && checkoutBtn) {
-      buyLink.addEventListener('click', () => {
-        // Update checkout button to match this product
-        checkoutBtn.href = buyLink.href;
-        checkoutBtn.textContent = `Checkout — ${title}`;
-      });
-    }
-  });
-});
-</script>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
   const grid = document.getElementById('productGrid');
