@@ -198,6 +198,8 @@ p{color:var(--muted)}
   border: 2px solid #000;
   border-radius: 12px;
 }
+  .modal .thumbs { display:flex; flex-wrap:wrap; gap:6px; }
+.modal .thumb.is-active img { border-color:#000; }
 
   
 }
