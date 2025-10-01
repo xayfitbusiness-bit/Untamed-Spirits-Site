@@ -410,13 +410,17 @@ function renderProducts(){
   // Reveal-on-load for .reveal items (simple)
   $$('.reveal').forEach(el => el.classList.add('in'));
 });
-</script>
+  </aside>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  // ...all your code (renderProducts/openGallery/cart/filters/lookbook)...
   renderProducts();
   renderCart();
   $$('.reveal').forEach(el => el.classList.add('in'));
 });
 </script>
 
-
 </body>
 </html>
+
