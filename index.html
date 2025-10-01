@@ -1,4 +1,3 @@
-index <!doctype html>
 <!doctype html>
 <html lang="en">
 <head>
@@ -25,7 +24,7 @@ index <!doctype html>
         <a href="#shop">Shop</a>
         <a href="#lookbook">Lookbook</a>
         <a href="#about">About</a>
-@@ -28,67 +28,65 @@ index <!doctype html>
+        <a href="#contact">Contact</a>
       </nav>
       <button id="cartBtn" class="icon-btn" aria-label="Open cart">🛒</button>
     </div>
@@ -50,23 +49,7 @@ index <!doctype html>
       </div>
     </section>
 
-    <!-- Shop -->
-<section id="shop" class="section">
-  <div class="container">
-    <div class="section-head">
-      <h2>Featured Tees</h2>
-      <div class="filters">
-        <button class="filter chip is-active" data-filter="all">All</button>
-        <button class="filter chip" data-filter="big-cat">Big Cats</button>
-        <button class="filter chip" data-filter="power">Power</button>
-        <button class="filter chip" data-filter="pack">Pack</button>
-      </div>
-    </div>
-
-    <!--JS will render cards here -->
-    <div id="productGrid" class="grid"></div>
-  </div>
-</section>
+    <!-- Shop (single, no duplicates) -->
     <section id="shop" class="section">
       <div class="container">
         <div class="section-head">
@@ -78,7 +61,7 @@ index <!doctype html>
             <button class="filter chip" data-filter="pack">Pack</button>
           </div>
         </div>
-
+        <!-- JS renders cards here -->
         <div id="productGrid" class="grid"></div>
       </div>
     </section>
@@ -107,12 +90,33 @@ index <!doctype html>
         </div>
         <ul class="bullets">
           <li>Premium performance fabric</li>
-@@ -118,653 +116,32 @@ index <!doctype html>
+          <li>Athletic cut, true to size</li>
+          <li>Limited seasonal drops</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Contact -->
+    <section id="contact" class="section">
+      <div class="container contact-grid">
+        <div>
+          <h2>Contact</h2>
+          <p>Questions, wholesale, or collabs? Let’s talk.</p>
+        </div>
+        <form id="contactForm" class="form glass">
+          <input type="text" name="name" placeholder="Your name" required>
+          <input type="email" name="email" placeholder="you@email.com" required>
+          <textarea name="message" rows="4" placeholder="Message" required></textarea>
+          <button class="btn btn-primary" type="submit">Send</button>
+        </form>
+      </div>
+    </section>
+  </main>
+
   <footer class="footer">
     <div class="container foot-row">
       <div class="foot-brand">© <span id="year"></span> Untamed Spirits</div>
-      <a class="ig" target="_blank"
-         href="https://www.instagram.com/untamedspiritsllc?igsh=MW5lemR5dXdqeGM0Mg%3D%3D&utm_source=qr">Instagram @untamedspiritsllc</a>
+      <a class="ig" target="_blank" href="https://www.instagram.com/untamedspiritsllc?igsh=MW5lemR5dXdqeGM0Mg%3D%3D&utm_source=qr">Instagram @untamedspiritsllc</a>
     </div>
   </footer>
 
@@ -124,7 +128,7 @@ index <!doctype html>
     </div>
   </div>
 
-  <!-- Cart drawer -->
+  <!-- Cart drawer (single checkout button) -->
   <aside id="cartDrawer" class="cart" aria-hidden="true">
     <header class="cart-head">
       <h3>Your Cart</h3>
@@ -133,633 +137,264 @@ index <!doctype html>
     <div id="cartItems" class="cart-items"></div>
     <div class="cart-foot">
       <div class="total">Total: $<span id="cartTotal">0.00</span></div>
-      <a class="btn btn-primary" id="checkoutBtn" href="" target="_blank">
-  Checkout
-</a>
-
       <a class="btn btn-primary" id="checkoutBtn" href="" target="_blank">Checkout</a>
     </div>
   </aside>
 
- <script>
-document.addEventListener('DOMContentLoaded', () => {
-  // ====== DATA (edit as needed) ======
-  // Stripe links you already have (kept the same)
-  const STRIPE = {
-    'Lion Muscle Tee':   'https://buy.stripe.com/00wfZhf94gYv49U4nJ14405',
-    'Tiger Muscle Tee':  'https://buy.stripe.com/eVq6oH3qmcIffSCbQb14403',
-    'Bear Muscle Tee':   'https://buy.stripe.com/00w8wPe508rZ8qa2fB14404',
-    'Gorilla Muscle Tee': 'https://buy.stripe.com/fZu8wP2mi8rZbCmf2n14401',
-    'Wolf Muscle Tee':   'https://buy.stripe.com/cNicN5d0W4bJ9ue7zV14402',
-  };
+  <!-- SINGLE, CONSOLIDATED SCRIPT -->
+  <script>
+  document.addEventListener('DOMContentLoaded', () => {
+    // ---------- UTILITIES ----------
+    const $ = (s, c=document) => c.querySelector(s);
+    const $$ = (s, c=document) => Array.from(c.querySelectorAll(s));
+    $('#year').textContent = new Date().getFullYear();
 
-  // Per-size prices (Tiger & Wolf = $35, others = $30; 2XL +$2)
-const PRODUCTS = [
-  { title:'Lion Muscle Tee', img:'lion-logo.jpg', category:'big-cat',
-    imgs:['lion-logo.jpg','lion-front.jpg','lion-detail.jpg'],
-    variantPrices:{ XS:30, S:30, M:30, L:30, XL:30, '2XL':32 } },
-  { title:'Tiger Muscle Tee', img:'tiger-logo.jpg', category:'big-cat',
-    imgs:['tiger-logo.jpg','tiger-front.jpg','tiger-detail.jpg'],
-    variantPrices:{ XS:35, S:35, M:35, L:35, XL:35, '2XL':37 } },
-  { title:'Bear Muscle Tee', img:'bear-logo.jpg', category:'power',
-    imgs:['bear-logo.jpg','bear-front.jpg','bear-detail.jpg'],
-    variantPrices:{ XS:30, S:30, M:30, L:30, XL:30, '2XL':32 } },
-  { title:'Gorilla Muscle Tee', img:'gorilla-logo.jpg', category:'power',
-    imgs:['gorilla-logo.jpg','gorilla-front.jpg','gorilla-detail.jpg'],
-    variantPrices:{ XS:30, S:30, M:30, L:30, XL:30, '2XL':32 } },
-  { title:'Wolf Muscle Tee', img:'wolf-logo.jpg', category:'pack',
-    imgs:['wolf-logo.jpg','wolf-front.jpg','wolf-detail.jpg'],
-    variantPrices:{ XS:35, S:35, M:35, L:35, XL:35, '2XL':37 } },
-];
+    // ---------- STRIPE + PRODUCT DATA ----------
+    const STRIPE = {
+      'Lion Muscle Tee':    'https://buy.stripe.com/00wfZhf94gYv49U4nJ14405',
+      'Tiger Muscle Tee':   'https://buy.stripe.com/eVq6oH3qmcIffSCbQb14403',
+      'Bear Muscle Tee':    'https://buy.stripe.com/00w8wPe508rZ8qa2fB14404',
+      'Gorilla Muscle Tee': 'https://buy.stripe.com/fZu8wP2mi8rZbCmf2n14401',
+      'Wolf Muscle Tee':    'https://buy.stripe.com/cNicN5d0W4bJ9ue7zV14402',
+    };
 
-  // ====== ELEMENTS ======
-  const grid         = document.getElementById('productGrid');
-  const cartBtn      = document.getElementById('cartBtn');
-  const cartDrawer   = document.getElementById('cartDrawer');
-  const closeCart    = document.getElementById('closeCart');
-  const cartItemsEl  = document.getElementById('cartItems');
-  const cartTotalEl  = document.getElementById('cartTotal');
-  const checkoutBtn  = document.getElementById('checkoutBtn');
+    // Per-size prices (Tiger & Wolf = $35, others = $30; 2XL +$2)
+    const PRODUCTS = [
+      { title:'Lion Muscle Tee', img:'lion-logo.jpg', category:'big-cat',
+        imgs:['lion-logo.jpg','lion-front.jpg','lion-detail.jpg'],
+        variantPrices:{ XS:30, S:30, M:30, L:30, XL:30, '2XL':32 } },
+      { title:'Tiger Muscle Tee', img:'tiger-logo.jpg', category:'big-cat',
+        imgs:['tiger-logo.jpg','tiger-front.jpg','tiger-detail.jpg'],
+        variantPrices:{ XS:35, S:35, M:35, L:35, XL:35, '2XL':37 } },
+      { title:'Bear Muscle Tee', img:'bear-logo.jpg', category:'power',
+        imgs:['bear-logo.jpg','bear-front.jpg','bear-detail.jpg'],
+        variantPrices:{ XS:30, S:30, M:30, L:30, XL:30, '2XL':32 } },
+      { title:'Gorilla Muscle Tee', img:'gorilla-logo.jpg', category:'power',
+        imgs:['gorilla-logo.jpg','gorilla-front.jpg','gorilla-detail.jpg'],
+        variantPrices:{ XS:30, S:30, M:30, L:30, XL:30, '2XL':32 } },
+      { title:'Wolf Muscle Tee', img:'wolf-logo.jpg', category:'pack',
+        imgs:['wolf-logo.jpg','wolf-front.jpg','wolf-detail.jpg'],
+        variantPrices:{ XS:35, S:35, M:35, L:35, XL:35, '2XL':37 } },
+    ];
 
-  // ====== HELPERS ======
-  const money = n => n.toLocaleString('en-US',{style:'currency',currency:'USD'});
+    // ---------- ELEMENTS ----------
+    const grid        = $('#productGrid');
+    const cartBtn     = $('#cartBtn');
+    const cartDrawer  = $('#cartDrawer');
+    const closeCart   = $('#closeCart');
+    const cartItemsEl = $('#cartItems');
+    const cartTotalEl = $('#cartTotal');
+    const checkoutBtn = $('#checkoutBtn');
+    const modal       = $('#productModal');
+    const modalBody   = $('#modalBody');
+    const modalClose  = $('#modalClose');
 
-  // ====== RENDER PRODUCTS (size select + live price + Add to Cart + Buy Now) ======
-  function renderProducts(){
-    grid.innerHTML = '';
-    PRODUCTS.forEach(p => {
-      const defaultPrice = p.variantPrices.M ?? Object.values(p.variantPrices)[0];
-      const card = document.createElement('div');
-      card.className = `product ${p.category}`;
-      card.style.border = '2px solid #000';   // black border
-      card.style.borderRadius = '12px';
-      card.style.padding = '12px';
-      card.style.textAlign = 'center';
+    // ---------- HELPERS ----------
+    const money = n => n.toLocaleString('en-US', { style:'currency', currency:'USD' });
 
-      card.innerHTML = `
-        <button class="img-open" aria-label="Open gallery" style="all:unset;cursor:zoom-in;display:block">
-        <img src="${p.img}" alt="${p.title}" style="width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:10px;">
-        </button>
-        const sizeEl   = card.querySelector('.size');
-        const priceEl  = card.querySelector('[data-price]');
-        const addBtn   = card.querySelector('.add');
+    // ---------- RENDER PRODUCTS ----------
+    function renderProducts(){
+      grid.innerHTML = '';
+      PRODUCTS.forEach(p => {
+        const defaultPrice = p.variantPrices.M ?? Object.values(p.variantPrices)[0];
+
+        const card = document.createElement('div');
+        card.className = `product ${p.category}`;
+        card.style.border = '2px solid #000';
+        card.style.borderRadius = '12px';
+        card.style.padding = '12px';
+        card.style.textAlign = 'center';
+
+        card.innerHTML = `
+          <button class="img-open" aria-label="Open gallery" style="all:unset;cursor:zoom-in;display:block">
+            <img src="${p.img}" alt="${p.title}" style="width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:10px;">
+          </button>
+          <h2 style="margin:8px 0 4px">${p.title}</h2>
+          <div class="price" data-price>${money(defaultPrice)}</div>
+          <div class="actions" style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:8px">
+            <select class="size" aria-label="Choose size" style="padding:6px;border:1px solid #ccc;border-radius:6px">
+              <option value="">Select size…</option>
+              ${Object.keys(p.variantPrices).map(s=>`<option>${s}</option>`).join('')}
+            </select>
+            <button class="btn add">Add to Cart</button>
+            <a class="btn" href="${STRIPE[p.title] || '#'}" target="_blank" rel="noopener">Buy Now</a>
+          </div>
+        `;
+
+        // wire events OUTSIDE the template string
+        const sizeEl  = card.querySelector('.size');
+        const priceEl = card.querySelector('[data-price]');
+        const addBtn  = card.querySelector('.add');
         const imgOpen = card.querySelector('.img-open');
-        imgOpen.addEventListener('click', (e) => {
-        e.preventDefault();
-        openGallery(p);
+
+        function updatePrice(){
+          const sz = sizeEl.value;
+          const base = p.variantPrices[sz] ?? defaultPrice;
+          priceEl.textContent = money(base);
+        }
+        sizeEl.addEventListener('change', updatePrice);
+
+        addBtn.addEventListener('click', (e)=>{
+          e.preventDefault();
+          const sz = sizeEl.value;
+          if(!sz){ alert('Please select a size.'); sizeEl.focus(); return; }
+          const unit = p.variantPrices[sz];
+          addToCart({ title:p.title, size:sz, unitPrice:unit, stripe:STRIPE[p.title] });
         });
 
+        imgOpen.addEventListener('click', (e)=>{
+          e.preventDefault();
+          openGallery(p);
+        });
 
-        <h2 style="margin:8px 0 4px">${p.title}</h2>
-        <div class="price" data-price>${money(defaultPrice)}</div>
-        <div class="actions" style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:8px">
-          <select class="size" aria-label="Choose size" style="padding:6px;border:1px solid #ccc;border-radius:6px">
-            <option value="">Select size…</option>
-            ${Object.keys(p.variantPrices).map(s=>`<option>${s}</option>`).join('')}
-          </select>
-          <button class="btn add">Add to Cart</button>
-          <a class="btn" href="${STRIPE[p.title] || '#'}" target="_blank" rel="noopener">Buy Now</a>
-        </div>
-      `;
+        grid.appendChild(card);
+      });
+    }
 
-      const sizeEl   = card.querySelector('.size');
-      const priceEl  = card.querySelector('[data-price]');
-      const addBtn   = card.querySelector('.add');
+    // ---------- GALLERY / LIGHTBOX ----------
+    function openGallery(p){
+      const imgs = Array.isArray(p.imgs) && p.imgs.length ? p.imgs : [p.img];
+      let idx = 0;
 
-      function updatePrice(){
-        const sz = sizeEl.value;
-        const base = p.variantPrices[sz] ?? defaultPrice;
-        priceEl.textContent = money(base);
+      function render(){
+        modalBody.innerHTML = `
+          <div style="display:grid;grid-template-columns:1fr;gap:12px;max-width:min(92vw,900px)">
+            <div style="position:relative">
+              <button id="prev" aria-label="Previous" style="position:absolute;left:8px;top:50%;transform:translateY(-50%);border:1px solid #000;background:#fff;padding:6px 10px;border-radius:8px;cursor:pointer">‹</button>
+              <img id="mainImg" src="${imgs[idx]}" alt="${p.title}" style="width:100%;height:auto;max-height:72vh;object-fit:contain;border-radius:12px;border:2px solid #000;background:#fff">
+              <button id="next" aria-label="Next" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);border:1px solid #000;background:#fff;padding:6px 10px;border-radius:8px;cursor:pointer">›</button>
+            </div>
+            <div>
+              ${imgs.map((src,i)=>`
+                <button class="thumb ${i===idx?'is-active':''}" data-i="${i}" style="all:unset;cursor:pointer;display:inline-block;margin:4px">
+                  <img src="${src}" alt="thumb ${i+1}" style="width:72px;height:72px;object-fit:cover;border-radius:10px;border:2px solid ${i===idx?'#000':'#ccc'}">
+                </button>
+              `).join('')}
+            </div>
+          </div>
+        `;
+        modalBody.querySelectorAll('.thumb').forEach(b=>{
+          b.addEventListener('click', ()=>{ idx = Number(b.dataset.i); render(); });
+        });
+        modalBody.querySelector('#prev').onclick = ()=>{ idx = (idx-1+imgs.length)%imgs.length; render(); };
+        modalBody.querySelector('#next').onclick = ()=>{ idx = (idx+1)%imgs.length; render(); };
       }
-      sizeEl.addEventListener('change', updatePrice);
 
-      addBtn.addEventListener('click', (e)=>{
-        e.preventDefault();
-        const sz = sizeEl.value;
-        if(!sz){ alert('Please select a size.'); sizeEl.focus(); return; }
-        const unit = p.variantPrices[sz];
-        addToCart({ title:p.title, size:sz, unitPrice:unit, stripe:STRIPE[p.title] });
-      });
+      render();
+      modal.setAttribute('aria-hidden','false');
 
-      grid.appendChild(card);
-    });
-  }
+      function onKey(e){
+        if(e.key==='Escape'){ close(); }
+        if(e.key==='ArrowLeft'){ modalBody.querySelector('#prev')?.click(); }
+        if(e.key==='ArrowRight'){ modalBody.querySelector('#next')?.click(); }
+      }
+      document.addEventListener('keydown', onKey);
 
-  // ====== CART ======
-  let cart = []; // {title,size,unitPrice,qty,stripe}
-
-  function addToCart(item){
-    const existing = cart.find(i => i.title===item.title && i.size===item.size);
-    if(existing){ existing.qty += 1; }
-    else { cart.push({...item, qty:1}); }
-    renderCart();
-    cartDrawer.setAttribute('aria-hidden','false');
-  }
-
-  function removeLine(idx){
-    cart.splice(idx,1);
-    renderCart();
-  }
-
-  function totals(){
-    const subtotal = cart.reduce((s,i)=>s + i.qty*i.unitPrice, 0);
-    return { subtotal, total:subtotal };
-  }
-
-  // ====== LIGHTBOX / GALLERY ======
-function openGallery(p){
-  const modal  = document.getElementById('productModal');
-  const body   = document.getElementById('modalBody');
-  const imgs   = Array.isArray(p.imgs) && p.imgs.length ? p.imgs : [p.img];
-
-  let idx = 0;
-  function render(){
-    body.innerHTML = `
-      <div style="display:grid;grid-template-columns:1fr;gap:12px;max-width:min(92vw,900px)">
-        <div style="position:relative">
-          <button id="prev" aria-label="Previous" style="position:absolute;left:8px;top:50%;transform:translateY(-50%);border:1px solid #000;background:#fff;padding:6px 10px;border-radius:8px;cursor:pointer">‹</button>
-          <img id="mainImg" src="${imgs[idx]}" alt="${p.title}" style="width:100%;height:auto;max-height:72vh;object-fit:contain;border-radius:12px;border:2px solid #000;background:#fff">
-          <button id="next" aria-label="Next" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);border:1px solid #000;background:#fff;padding:6px 10px;border-radius:8px;cursor:pointer">›</button>
-        </div>
-        <div class="thumbs">
-          ${imgs.map((src,i)=>`
-            <button class="thumb ${i===idx?'is-active':''}" data-i="${i}" style="all:unset;cursor:pointer;display:inline-block;margin:4px">
-              <img src="${src}" alt="thumb ${i+1}" style="width:72px;height:72px;object-fit:cover;border-radius:10px;border:2px solid ${i===idx?'#000':'#ccc'}">
-            </button>
-          `).join('')}
-        </div>
-      </div>
-    `;
-    body.querySelectorAll('.thumb').forEach(b=>{
-      b.addEventListener('click', ()=>{ idx = Number(b.dataset.i); render(); });
-    });
-    body.querySelector('#prev').onclick = ()=>{ idx = (idx-1+imgs.length)%imgs.length; render(); };
-    body.querySelector('#next').onclick = ()=>{ idx = (idx+1)%imgs.length; render(); };
-  }
-
-  render();
-  modal.setAttribute('aria-hidden','false');
-
-  function onKey(e){
-    if(e.key==='Escape'){ close(); }
-    if(e.key==='ArrowLeft'){ document.getElementById('prev')?.click(); }
-    if(e.key==='ArrowRight'){ document.getElementById('next')?.click(); }
-  }
-  document.addEventListener('keydown', onKey);
-
-  const closeBtn = document.getElementById('modalClose');
-  function close(){
-    modal.setAttribute('aria-hidden','true');
-    document.removeEventListener('keydown', onKey);
-  }
-  closeBtn?.addEventListener('click', close, { once:true });
-  modal.addEventListener('click', (e)=>{ if(e.target === modal) close(); }, { once:true });
-}
-
-
-  function renderCart(){
-    if(cart.length===0){
-      cartItemsEl.innerHTML = `<div style="color:#666">Cart empty</div>`;
-      cartTotalEl.textContent = (0).toFixed(2);
-      checkoutBtn.textContent = 'Checkout';
-      checkoutBtn.onclick = (e)=>{ e.preventDefault(); alert('Please add a product first.'); };
-      return;
+      function close(){
+        modal.setAttribute('aria-hidden','true');
+        document.removeEventListener('keydown', onKey);
+      }
+      modal.addEventListener('click', (e)=>{ if(e.target === modal) close(); }, { once:true });
+      modalClose?.addEventListener('click', close, { once:true });
     }
 
-    cartItemsEl.innerHTML = cart.map((i,idx)=>`
-      <div class="cart-row" style="display:flex;justify-content:space-between;align-items:center;margin:6px 0;gap:10px;">
-        <div>
-          <div style="font-weight:700">${i.title}</div>
-          <div style="font-size:.9rem;color:#555">Size: ${i.size} · ${money(i.unitPrice)}</div>
-        </div>
-        <div style="display:flex;align-items:center;gap:8px;">
-          <span>x${i.qty}</span>
-          <strong>${money(i.qty*i.unitPrice)}</strong>
-          <button class="icon-btn" aria-label="Remove" data-remove="${idx}">✕</button>
-        </div>
-      </div>
-    `).join('');
+    // ---------- CART ----------
+    let cart = []; // {title,size,unitPrice,qty,stripe}
 
-    cartItemsEl.querySelectorAll('[data-remove]').forEach(btn=>{
-      btn.addEventListener('click', ()=> removeLine(Number(btn.getAttribute('data-remove'))));
-    });
-
-    const { total } = totals();
-    cartTotalEl.textContent = total.toFixed(2);
-
-    // Checkout opens the Stripe link for the most recently added product (keeps your flow)
-    const last = cart[cart.length-1];
-    checkoutBtn.textContent = `Checkout — ${last.title}`;
-    checkoutBtn.onclick = (e)=>{
-      e.preventDefault();
-      if(!last?.stripe){ alert('Missing Stripe link'); return; }
-      window.open(last.stripe,'_blank','noopener');
-    };
-  }
-
-  // Drawer open/close
-  cartBtn?.addEventListener('click', ()=> cartDrawer.setAttribute('aria-hidden','false'));
-  closeCart?.addEventListener('click', ()=> cartDrawer.setAttribute('aria-hidden','true'));
-
-  // Initial render
-  renderProducts();
-  renderCart();
-
-  // Filters (keep your existing filter buttons working)
-  document.querySelectorAll('.filter').forEach(button => {
-    button.addEventListener('click', () => {
-      const filter = button.getAttribute('data-filter');
-      document.querySelectorAll('.filter').forEach(b=>b.classList.remove('is-active'));
-      button.classList.add('is-active');
-      document.querySelectorAll('#productGrid .product').forEach(prod => {
-        if (filter === 'all') prod.style.display = 'block';
-        else prod.style.display = prod.classList.contains(filter) ? 'block' : 'none';
-      });
-    });
-  });
-
-  //Render
-  renderProducts();
-  renderCart();
-});
-
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-  const grid = document.getElementById('productGrid');
-  const cartBtn = document.getElementById('cartBtn');
-  const cart = document.getElementById('cartDrawer');
-  const closeCart = document.getElementById('closeCart');
-  const cartItemsEl = document.getElementById('cartItems');
-  const cartTotalEl = document.getElementById('cartTotal');
-  const checkoutBtn = document.getElementById('checkoutBtn');
-  const modal = document.getElementById('productModal');
-  const modalClose = document.getElementById('modalClose');
-  const modalBody = document.getElementById('modalBody');
-
-  let cartItems = [];
-  let selectedStripeLink = null;
-
-  // Build "View" + "Add to Cart" under each product, and also wire Buy Now
-  grid.querySelectorAll('.product').forEach(card => {
-    const buy = card.querySelector('a[href^="https://buy.stripe.com"]');
-    const title = card.querySelector('h2')?.textContent?.trim() || 'Item';
-
-    // When user clicks Buy Now, also update global Checkout
-    if (buy) {
-      buy.addEventListener('click', () => {
-        selectedStripeLink = buy.href;
-        checkoutBtn.textContent = `Checkout — ${title}`;
-      });
+    function addToCart(item){
+      const existing = cart.find(i => i.title===item.title && i.size===item.size);
+      if(existing){ existing.qty += 1; }
+      else { cart.push({...item, qty:1}); }
+      renderCart();
+      cartDrawer.setAttribute('aria-hidden','false');
     }
 
-    // Add actions row only if it doesn't exist yet
-    if (!card.querySelector('.actions')) {
-      const actions = document.createElement('div');
-      actions.className = 'actions';
-
-      // View (opens modal)
-      const viewBtn = document.createElement('button');
-      viewBtn.className = 'btn btn-ghost';
-      viewBtn.type = 'button';
-      viewBtn.textContent = 'View';
-      viewBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        const imgSrc = card.querySelector('img')?.getAttribute('src') || '';
-        modalBody.innerHTML = `
-          <div class="detail" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
-            <div><img src="${imgSrc}" alt="${title}" style="width:100%;height:100%;object-fit:contain;border-radius:12px;border:1px solid #182033"></div>
-            <div>
-              <h3 style="margin:0 0 8px;font-size:1.25rem;">${title}</h3>
-              <p>Premium athletic fit muscle tee. Moisture-wicking, four-way stretch.</p>
-              <div style="display:flex;gap:8px;margin-top:12px;">
-                <a class="btn" href="${buy?.href || '#'}" target="_blank">Buy Now</a>
-                <button type="button" class="btn" id="modalAddToCart">Add to Cart</button>
-              </div>
-            </div>
-          </div>`;
-        modal.setAttribute('aria-hidden', 'false');
-
-        const modalAdd = document.getElementById('modalAddToCart');
-        if (modalAdd && buy) {
-          modalAdd.addEventListener('click', () => {
-            addToCart(title, buy.href);
-            modal.setAttribute('aria-hidden', 'true');
-          });
-        }
-      });
-
-      // Add to Cart
-      const addBtn = document.createElement('button');
-      addBtn.className = 'btn';
-      addBtn.type = 'button';
-      addBtn.textContent = 'Add to Cart';
-      addBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        if (buy) addToCart(title, buy.href);
-      });
-
-      actions.append(viewBtn, addBtn);
-      card.appendChild(actions);
-    }
-  });
-
-  function addToCart(title, link) {
-    cartItems.push({ title, link });
-    selectedStripeLink = link;                       // set selection
-    checkoutBtn.textContent = `Checkout — ${title}`; // update label
-    renderCart();
-    cart.setAttribute('aria-hidden', 'false');       // open cart
-  }
-
-  function renderCart() {
-    cartItemsEl.innerHTML = cartItems.map((item, i) => `
-      <div class="cart-row" data-i="${i}" style="display:flex;justify-content:space-between;align-items:center;margin:6px 0;">
-        <span>${item.title}</span>
-        <button class="icon-btn remove" title="Remove">✕</button>
-      </div>
-    `).join('');
-    cartTotalEl.textContent = (0).toFixed(2);       // Stripe handles real pricing
-
-    cartItemsEl.querySelectorAll('.remove').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const row = e.target.closest('.cart-row');
-        const i = Number(row?.dataset.i);
-        if (!Number.isNaN(i)) {
-          cartItems.splice(i, 1);
-          if (cartItems.length) {
-            const last = cartItems[cartItems.length - 1];
-            selectedStripeLink = last.link;
-            checkoutBtn.textContent = `Checkout — ${last.title}`;
-          } else {
-            selectedStripeLink = null;
-            checkoutBtn.textContent = 'Checkout';
-          }
-          renderCart();
-        }
-      });
-    });
-  }
-
-  // Cart open/close
-  cartBtn?.addEventListener('click', () => cart.setAttribute('aria-hidden', 'false'));
-  closeCart?.addEventListener('click', () => cart.setAttribute('aria-hidden', 'true'));
-
-  // Modal close
-  modalClose?.addEventListener('click', () => modal.setAttribute('aria-hidden', 'true'));
-  modal.addEventListener('click', (e) => { if (e.target === modal) modal.setAttribute('aria-hidden', 'true'); });
-
-  // Global Checkout: open last selected Stripe link
-  checkoutBtn.addEventListener('click', (e) => {
-    if (!selectedStripeLink) {
-      e.preventDefault();
-      alert('Please add a product to the cart or select one first.');
-      return;
-    }
-    e.preventDefault();
-    window.open(selectedStripeLink, '_blank');
-  });
-});
-</script>
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-  document.querySelectorAll('.reveal').forEach(el => el.classList.add('in'));
-});
-</script>
-  <script>
-document.addEventListener('DOMContentLoaded', () => {
-  const grid = document.getElementById('productGrid');
-  const cartBtn = document.getElementById('cartBtn');
-  const cart = document.getElementById('cartDrawer');
-  const closeCart = document.getElementById('closeCart');
-  const cartItemsEl = document.getElementById('cartItems');
-  const cartTotalEl = document.getElementById('cartTotal');
-  const checkoutBtn = document.getElementById('checkoutBtn');
-  const modal = document.getElementById('productModal');
-  const modalClose = document.getElementById('modalClose');
-  const modalBody = document.getElementById('modalBody');
-
-  // ---- PRICES: set your product prices here (edit numbers as needed) ----
-  const priceMap = {
-    'Gorilla Muscle Tee': 29.00,
-    'Wolf Muscle Tee':    29.00,
-    'Tiger Muscle Tee':   29.00,
-    'Bear Muscle Tee':    29.00,
-    'Lion Muscle Tee':    29.00,
-  };
-
-  // helpers
-  const fmt = (n) => n.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
-
-  let cartItems = [];
-  let selectedStripeLink = null;
-
-  // Build "View" + "Add to Cart" under each product, and wire Buy Now
-  grid.querySelectorAll('.product').forEach(card => {
-    const buy = card.querySelector('a[href^="https://buy.stripe.com"]');
-    const title = card.querySelector('h2')?.textContent?.trim() || 'Item';
-    const price = priceMap[title] ?? 0;
-
-    // When user clicks Buy Now, also update global Checkout
-    if (buy) {
-      buy.addEventListener('click', () => {
-        selectedStripeLink = buy.href;
-        checkoutBtn.textContent = `Checkout — ${title}`;
-      });
+    function removeLine(idx){
+      cart.splice(idx,1);
+      renderCart();
     }
 
-    // Actions row (View + Add to Cart), only if not already present
-    if (!card.querySelector('.actions')) {
-      const actions = document.createElement('div');
-      actions.className = 'actions';
-      actions.style.marginTop = '8px';
-      actions.style.display = 'flex';
-      actions.style.gap = '8px';
-      actions.style.justifyContent = 'center';
-      actions.style.flexWrap = 'wrap';
-
-      // View (modal)
-      const viewBtn = document.createElement('button');
-      viewBtn.className = 'btn btn-ghost';
-      viewBtn.type = 'button';
-      viewBtn.textContent = 'View';
-      viewBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        const imgSrc = card.querySelector('img')?.getAttribute('src') || '';
-        modalBody.innerHTML = `
-          <div class="detail" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
-            <div>
-              <img src="${imgSrc}" alt="${title}" style="width:100%;height:100%;object-fit:contain;border-radius:12px;border:1px solid #182033">
-            </div>
-            <div>
-              <h3 style="margin:0 0 8px;font-size:1.25rem;">${title}</h3>
-              <p>Premium athletic fit muscle tee. Moisture-wicking, four-way stretch.</p>
-              <div style="margin:10px 0;font-weight:800;color:#cbd5ff;">${fmt(price)}</div>
-              <div style="display:flex;gap:8px;margin-top:12px;">
-                <a class="btn btn-primary" href="${buy?.href || '#'}" target="_blank">Buy Now</a>
-                <button type="button" class="btn" id="modalAddToCart">Add to Cart</button>
-              </div>
-            </div>
-          </div>`;
-        modal.setAttribute('aria-hidden', 'false');
-
-        const modalAdd = document.getElementById('modalAddToCart');
-        if (modalAdd && buy) {
-          modalAdd.addEventListener('click', () => {
-            addToCart(title, buy.href, price);
-            modal.setAttribute('aria-hidden', 'true');
-          });
-        }
-      });
-
-      // Add to Cart
-      const addBtn = document.createElement('button');
-      addBtn.className = 'btn';
-      addBtn.type = 'button';
-      addBtn.textContent = 'Add to Cart';
-      addBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        if (buy) addToCart(title, buy.href, price);
-      });
-
-      actions.append(viewBtn, addBtn);
-
-      // Price label under the title
-      const priceEl = document.createElement('div');
-      priceEl.className = 'price';
-      priceEl.textContent = fmt(price);
-      priceEl.style.fontWeight = '800';
-      priceEl.style.color = '#cbd5ff';
-      priceEl.style.marginTop = '4px';
-
-      // Insert price before actions
-      card.appendChild(priceEl);
-      card.appendChild(actions);
+    function totals(){
+      const subtotal = cart.reduce((s,i)=>s + i.qty*i.unitPrice, 0);
+      return { subtotal, total:subtotal };
     }
-  });
 
-  function addToCart(title, link, price) {
-    cartItems.push({ title, link, price });
-    selectedStripeLink = link;                          // set selection
-    checkoutBtn.textContent = `Checkout — ${title}`;    // update label
-    renderCart();
-    cart.setAttribute('aria-hidden', 'false');          // open cart
-  }
+    function renderCart(){
+      if(cart.length===0){
+        cartItemsEl.innerHTML = `<div style="color:#666">Cart empty</div>`;
+        cartTotalEl.textContent = (0).toFixed(2);
+        checkoutBtn.textContent = 'Checkout';
+        checkoutBtn.onclick = (e)=>{ e.preventDefault(); alert('Please add a product first.'); };
+        return;
+      }
 
-  function renderCart() {
-    let total = 0;
-    cartItemsEl.innerHTML = cartItems.map((item, i) => {
-      total += item.price;
-      return `
-        <div class="cart-row" data-i="${i}" style="display:flex;justify-content:space-between;align-items:center;margin:6px 0;gap:10px;">
-          <span>${item.title}</span>
+      cartItemsEl.innerHTML = cart.map((i,idx)=>`
+        <div class="cart-row" style="display:flex;justify-content:space-between;align-items:center;margin:6px 0;gap:10px;">
+          <div>
+            <div style="font-weight:700">${i.title}</div>
+            <div style="font-size:.9rem;color:#555">Size: ${i.size} · ${money(i.unitPrice)}</div>
+          </div>
           <div style="display:flex;align-items:center;gap:8px;">
-            <span style="color:#cbd5ff;font-weight:700;">${fmt(item.price)}</span>
-            <button class="icon-btn remove" title="Remove">✕</button>
+            <span>x${i.qty}</span>
+            <strong>${money(i.qty*i.unitPrice)}</strong>
+            <button class="icon-btn" aria-label="Remove" data-remove="${idx}">✕</button>
           </div>
         </div>
-      `;
-    }).join('');
-    cartTotalEl.textContent = total.toFixed(2);
+      `).join('');
 
-    // remove handlers
-    cartItemsEl.querySelectorAll('.remove').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const row = e.target.closest('.cart-row');
-        const i = Number(row?.dataset.i);
-        if (!Number.isNaN(i)) {
-          cartItems.splice(i, 1);
-          if (cartItems.length) {
-            const last = cartItems[cartItems.length - 1];
-            selectedStripeLink = last.link;
-            checkoutBtn.textContent = `Checkout — ${last.title}`;
-          } else {
-            selectedStripeLink = null;
-            checkoutBtn.textContent = 'Checkout';
-          }
-          renderCart();
-        }
+      cartItemsEl.querySelectorAll('[data-remove]').forEach(btn=>{
+        btn.addEventListener('click', ()=> removeLine(Number(btn.getAttribute('data-remove'))));
+      });
+
+      const { total } = totals();
+      cartTotalEl.textContent = total.toFixed(2);
+
+      const last = cart[cart.length-1];
+      checkoutBtn.textContent = `Checkout — ${last.title}`;
+      checkoutBtn.onclick = (e)=>{
+        e.preventDefault();
+        if(!last?.stripe){ alert('Missing Stripe link'); return; }
+        window.open(last.stripe,'_blank','noopener');
+      };
+    }
+
+    // Drawer open/close
+    cartBtn?.addEventListener('click', ()=> cartDrawer.setAttribute('aria-hidden','false'));
+    closeCart?.addEventListener('click', ()=> cartDrawer.setAttribute('aria-hidden','true'));
+
+    // ---------- FILTERS ----------
+    $$('.filter').forEach(button => {
+      button.addEventListener('click', () => {
+        const filter = button.getAttribute('data-filter');
+        $$('.filter').forEach(b=>b.classList.remove('is-active'));
+        button.classList.add('is-active');
+        $$('#productGrid .product').forEach(prod => {
+          prod.style.display = (filter==='all' || prod.classList.contains(filter)) ? 'block' : 'none';
+        });
       });
     });
-  }
 
-  // Cart open/close
-  cartBtn?.addEventListener('click', () => cart.setAttribute('aria-hidden', 'false'));
-  closeCart?.addEventListener('click', () => cart.setAttribute('aria-hidden', 'true'));
-
-  // Modal close
-  modalClose?.addEventListener('click', () => modal.setAttribute('aria-hidden', 'true'));
-  modal.addEventListener('click', (e) => { if (e.target === modal) modal.setAttribute('aria-hidden', 'true'); });
-
-  // Global Checkout: open last selected Stripe link
-  checkoutBtn.addEventListener('click', (e) => {
-    if (!selectedStripeLink) {
-      e.preventDefault();
-      alert('Please add a product to the cart or select one first.');
-      return;
-    }
-    e.preventDefault();
-    window.open(selectedStripeLink, '_blank');
-  });
-
-  // ---- Lookbook: click any image to expand in the same modal ----
-  document.querySelectorAll('.lookbook-grid img').forEach(img => {
-    img.style.cursor = 'zoom-in';
-    img.addEventListener('click', () => {
-      modalBody.innerHTML = `
-        <div style="padding:8px">
-          <img src="${img.src}" alt="${img.alt || ''}" style="width:100%;height:100%;object-fit:contain;border-radius:12px;border:1px solid #182033">
-        </div>`;
-      modal.setAttribute('aria-hidden', 'false');
+    // ---------- LOOKBOOK: reuse same modal ----------
+    $$('.lookbook-grid img').forEach(img => {
+      img.style.cursor = 'zoom-in';
+      img.addEventListener('click', () => {
+        modalBody.innerHTML = `
+          <div style="padding:8px">
+            <img src="${img.src}" alt="${img.alt || ''}" style="width:100%;height:100%;object-fit:contain;border-radius:12px;border:2px solid #000;background:#fff">
+          </div>`;
+        modal.setAttribute('aria-hidden', 'false');
+      });
     });
-  });
-});
-</script>
-<script>
-// Lookbook image expand
-document.querySelectorAll('.lookbook-grid img').forEach(img => {
-  img.style.cursor = 'pointer';
-  img.addEventListener('click', () => {
-    const modal = document.getElementById('productModal');
-    const modalImg = modal.querySelector('img');
-    const modalTitle = modal.querySelector('h2');
+    modalClose?.addEventListener('click', () => modal.setAttribute('aria-hidden', 'true'));
+    modal.addEventListener('click', (e) => { if (e.target === modal) modal.setAttribute('aria-hidden', 'true'); });
 
-    modalImg.src = img.src;        // show the same image in modal
-    modalTitle.textContent = img.alt || "Lookbook"; 
-    modal.removeAttribute('aria-hidden');
-  });
-});
+    // ---------- INIT ----------
+    renderProducts();
+    renderCart();
 
-// Close modal when clicking outside or on close button
-document.querySelectorAll('.modal').forEach(modal => {
-  modal.addEventListener('click', (e) => {
-    if (e.target.classList.contains('modal') || e.target.classList.contains('close')) {
-      modal.setAttribute('aria-hidden', 'true');
-    }
+    // simple reveal helper
+    $$('.reveal').forEach(el => el.classList.add('in'));
   });
-});
-</script>
-<script>
-// Product filtering
-document.querySelectorAll('.filter').forEach(button => {
-  button.addEventListener('click', () => {
-    const filter = button.getAttribute('data-filter');
-
-    // update active button styling
-    document.querySelectorAll('.filter').forEach(btn => btn.classList.remove('is-active'));
-    button.classList.add('is-active');
-
-    // show/hide products
-    document.querySelectorAll('#productGrid .product').forEach(product => {
-      if (filter === 'all') {
-        product.style.display = 'block';
-      } else {
-        product.style.display = product.classList.contains(filter) ? 'block' : 'none';
-      }
-    });
-  });
-});
-</script>
- 
-  <script src="script.js"></script>
+  </script>
 </body>
 </html>
