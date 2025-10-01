@@ -140,11 +140,9 @@ index <!doctype html>
     <div id="cartItems" class="cart-items"></div>
     <div class="cart-foot">
       <div class="total">Total: $<span id="cartTotal">0.00</span></div>
-      <a class="btn btn-primary" id="checkoutBtn" href="" target="_blank">
-  Checkout
-</a>
+      <a class="btn btn-primary" id="checkoutBtn" href="" target="_blank">Checkout</a>
     </div>
-</aside>
+  </aside>
   
 <script>
 document.addEventListener('DOMContentLoaded', () => {
@@ -434,7 +432,7 @@ function renderProducts(){
     };
 
     // If your images are in /images, set this to 'images/'
-    const IMG_BASE = ''; // e.g. 'images/'
+    const IMG_BASE = 'images/'; // e.g. 'images/'
 
     const PRODUCTS = [
       { title:'Lion Muscle Tee', img: IMG_BASE+'lion-logo.jpg', category:'big-cat',
