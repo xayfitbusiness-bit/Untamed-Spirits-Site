@@ -252,51 +252,116 @@
     }
 
     // ---------- GALLERY / LIGHTBOX ----------
-    function openGallery(p){
-      const imgs = Array.isArray(p.imgs) && p.imgs.length ? p.imgs : [p.img];
-      let idx = 0;
+function openGallery(p){
+  const media = Array.isArray(p.imgs) && p.imgs.length ? p.imgs : [p.img];
+  let idx = 0;
 
-      function render(){
-        modalBody.innerHTML = `
-          <div style="display:grid;grid-template-columns:1fr;gap:12px;max-width:min(92vw,900px)">
-            <div style="position:relative">
-              <button id="prev" aria-label="Previous" style="position:absolute;left:8px;top:50%;transform:translateY(-50%);border:1px solid #000;background:#fff;padding:6px 10px;border-radius:8px;cursor:pointer">‹</button>
-              <img id="mainImg" src="${imgs[idx]}" alt="${p.title}" style="width:100%;height:auto;max-height:72vh;object-fit:contain;border-radius:12px;border:2px solid #000;background:#fff">
-              <button id="next" aria-label="Next" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);border:1px solid #000;background:#fff;padding:6px 10px;border-radius:8px;cursor:pointer">›</button>
-            </div>
-            <div>
-              ${imgs.map((src,i)=>`
-                <button class="thumb ${i===idx?'is-active':''}" data-i="${i}" style="all:unset;cursor:pointer;display:inline-block;margin:4px">
-                  <img src="${src}" alt="thumb ${i+1}" style="width:72px;height:72px;object-fit:cover;border-radius:10px;border:2px solid ${i===idx?'#000':'#ccc'}">
+  const isVideo = (src) => /\.(mp4|webm|ogg|ogv)$/i.test(src);
+  const videoType = (src) => {
+    const ext = src.split('.').pop().toLowerCase();
+    if (ext === 'webm') return 'video/webm';
+    if (ext === 'ogg' || ext === 'ogv') return 'video/ogg';
+    return 'video/mp4';
+  };
+  const pauseAll = () => modalBody.querySelectorAll('video').forEach(v => { try { v.pause(); } catch {} });
+
+  function paint(){
+    const src = media[idx];
+
+    modalBody.innerHTML = `
+      <div style="display:grid;grid-template-columns:1fr;gap:12px;max-width:min(92vw,900px)">
+        <div style="position:relative">
+          <button id="prev" aria-label="Previous"
+                  style="position:absolute;left:8px;top:50%;transform:translateY(-50%);
+                         border:1px solid #000;background:#fff;padding:6px 10px;border-radius:8px;cursor:pointer">‹</button>
+
+          ${isVideo(src)
+            ? `
+              <video id="mainMedia" controls playsinline preload="metadata"
+                     style="width:100%;height:auto;max-height:72vh;object-fit:contain;
+                            border-radius:12px;border:2px solid #000;background:#000">
+                <source src="${src}" type="${videoType(src)}">
+                Your browser does not support the video tag.
+              </video>
+            `
+            : `
+              <img id="mainMedia" src="${src}" alt="${p.title}"
+                   style="width:100%;height:auto;max-height:72vh;object-fit:contain;
+                          border-radius:12px;border:2px solid #000;background:#fff">
+            `
+          }
+
+          <button id="next" aria-label="Next"
+                  style="position:absolute;right:8px;top:50%;transform:translateY(-50%);
+                         border:1px solid #000;background:#fff;padding:6px 10px;border-radius:8px;cursor:pointer">›</button>
+        </div>
+
+        <div>
+          ${media.map((m,i)=>{
+            const border = i===idx ? '#000' : '#ccc';
+            return isVideo(m)
+              ? `
+                <button class="thumb ${i===idx?'is-active':''}" data-i="${i}"
+                        style="all:unset;cursor:pointer;display:inline-block;margin:4px;position:relative">
+                  <video muted playsinline preload="metadata" src="${m}"
+                         style="width:72px;height:72px;object-fit:cover;border-radius:10px;border:2px solid ${border}"></video>
+                  <span style="position:absolute;bottom:6px;right:6px;background:#000c;color:#fff;
+                               border-radius:6px;padding:0 6px;font-size:12px;line-height:20px;">▶</span>
                 </button>
-              `).join('')}
-            </div>
-          </div>
-        `;
-        modalBody.querySelectorAll('.thumb').forEach(b=>{
-          b.addEventListener('click', ()=>{ idx = Number(b.dataset.i); render(); });
-        });
-        modalBody.querySelector('#prev').onclick = ()=>{ idx = (idx-1+imgs.length)%imgs.length; render(); };
-        modalBody.querySelector('#next').onclick = ()=>{ idx = (idx+1)%imgs.length; render(); };
-      }
+              `
+              : `
+                <button class="thumb ${i===idx?'is-active':''}" data-i="${i}"
+                        style="all:unset;cursor:pointer;display:inline-block;margin:4px">
+                  <img src="${m}" alt="thumb ${i+1}"
+                       style="width:72px;height:72px;object-fit:cover;border-radius:10px;border:2px solid ${border}">
+                </button>
+              `;
+          }).join('')}
+        </div>
+      </div>
+    `;
 
-      render();
-      modal.setAttribute('aria-hidden','false');
+    // thumbs
+    modalBody.querySelectorAll('.thumb').forEach(b=>{
+      b.addEventListener('click', ()=>{
+        pauseAll();
+        idx = Number(b.dataset.i);
+        paint();
+      });
+    });
 
-      function onKey(e){
-        if(e.key==='Escape'){ close(); }
-        if(e.key==='ArrowLeft'){ modalBody.querySelector('#prev')?.click(); }
-        if(e.key==='ArrowRight'){ modalBody.querySelector('#next')?.click(); }
-      }
-      document.addEventListener('keydown', onKey);
+    // arrows
+    modalBody.querySelector('#prev').onclick = ()=>{
+      pauseAll();
+      idx = (idx-1+media.length)%media.length;
+      paint();
+    };
+    modalBody.querySelector('#next').onclick = ()=>{
+      pauseAll();
+      idx = (idx+1)%media.length;
+      paint();
+    };
+  }
 
-      function close(){
-        modal.setAttribute('aria-hidden','true');
-        document.removeEventListener('keydown', onKey);
-      }
-      modal.addEventListener('click', (e)=>{ if(e.target === modal) close(); }, { once:true });
-      modalClose?.addEventListener('click', close, { once:true });
-    }
+  paint();
+  modal.setAttribute('aria-hidden','false');
+
+  function onKey(e){
+    if(e.key==='Escape'){ close(); }
+    if(e.key==='ArrowLeft'){ modalBody.querySelector('#prev')?.click(); }
+    if(e.key==='ArrowRight'){ modalBody.querySelector('#next')?.click(); }
+  }
+  document.addEventListener('keydown', onKey);
+
+  function close(){
+    pauseAll();
+    modal.setAttribute('aria-hidden','true');
+    document.removeEventListener('keydown', onKey);
+  }
+  modal.addEventListener('click', (e)=>{ if(e.target === modal) close(); }, { once:true });
+  modalClose?.addEventListener('click', close, { once:true });
+}
+
 
     // ---------- CART ----------
     let cart = []; // {title,size,unitPrice,qty,stripe}
