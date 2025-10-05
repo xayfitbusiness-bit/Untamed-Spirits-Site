@@ -1,1 +1,8 @@
+ffmpeg -i lion-vid-source.mov \
+  -c:v libx264 -profile:v high -level 4.1 -pix_fmt yuv420p \
+  -crf 23 -preset medium -movflags +faststart \
+  -vf "scale=1280:-2" \
+  -c:a aac -b:a 128k \
+  lion-vid.mp4
+
 
