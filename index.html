@@ -271,8 +271,8 @@ function openGallery(p){
                poster="${posterImg}"
                style="width:100%;height:auto;max-height:72vh;object-fit:contain;border-radius:12px;border:2px solid #000;background:#000">
           <!-- Try MP4, then WebM, then the exact file -->
-          <source src="${baseName(src)}.mp4"  type="video/mp4">
-          <source src="${baseName(src)}.webm" type="video/webm">
+          <source src="${baseName(src)}.mp4"  type="video-mp4">
+          <source src="${baseName(src)}.webm" type="video-webm">
           <source src="${src}" type="video/${src.split('.').pop().toLowerCase()}">
           Sorry, your browser doesn’t support HTML5 video.
         </video>`
