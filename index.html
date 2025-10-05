@@ -256,112 +256,84 @@ function openGallery(p){
   const media = Array.isArray(p.imgs) && p.imgs.length ? p.imgs : [p.img];
   let idx = 0;
 
-  const isVideo = (src) => /\.(mp4|webm|ogg|ogv)$/i.test(src);
-  const videoType = (src) => {
-    const ext = src.split('.').pop().toLowerCase();
-    if (ext === 'webm') return 'video/webm';
-    if (ext === 'ogg' || ext === 'ogv') return 'video/ogg';
-    return 'video/mp4';
-  };
-  const pauseAll = () => modalBody.querySelectorAll('video').forEach(v => { try { v.pause(); } catch {} });
+  const isVideo   = (src) => /\.(mp4|webm|ogg|ogv)$/i.test(src);
+  const baseName  = (src) => src.replace(/\.(mp4|webm|ogg|ogv)$/i, '');
+  const posterImg = (p.imgs||[]).find(x => /\.(jpe?g|png|webp|avif)$/i.test(x)) || p.img || '';
+
+  const pauseAll = () => modalBody.querySelectorAll('video').forEach(v=>{ try { v.pause(); } catch {} });
 
   function paint(){
     const src = media[idx];
+    const main = isVideo(src)
+      ? `
+        <video id="mainMedia"
+               controls playsinline webkit-playsinline preload="metadata"
+               poster="${posterImg}"
+               style="width:100%;height:auto;max-height:72vh;object-fit:contain;border-radius:12px;border:2px solid #000;background:#000">
+          <!-- Try MP4, then WebM, then the exact file -->
+          <source src="${baseName(src)}.mp4"  type="video/mp4">
+          <source src="${baseName(src)}.webm" type="video/webm">
+          <source src="${src}" type="video/${src.split('.').pop().toLowerCase()}">
+          Sorry, your browser doesn’t support HTML5 video.
+        </video>`
+      : `
+        <img id="mainMedia" src="${src}" alt="${p.title}"
+             style="width:100%;height:auto;max-height:72vh;object-fit:contain;border-radius:12px;border:2px solid #000;background:#fff">`;
 
     modalBody.innerHTML = `
       <div style="display:grid;grid-template-columns:1fr;gap:12px;max-width:min(92vw,900px)">
         <div style="position:relative">
           <button id="prev" aria-label="Previous"
-                  style="position:absolute;left:8px;top:50%;transform:translateY(-50%);
-                         border:1px solid #000;background:#fff;padding:6px 10px;border-radius:8px;cursor:pointer">‹</button>
-
-          ${isVideo(src)
-            ? `
-              <video id="mainMedia" controls playsinline preload="metadata"
-                     style="width:100%;height:auto;max-height:72vh;object-fit:contain;
-                            border-radius:12px;border:2px solid #000;background:#000">
-                <source src="${src}" type="${videoType(src)}">
-                Your browser does not support the video tag.
-              </video>
-            `
-            : `
-              <img id="mainMedia" src="${src}" alt="${p.title}"
-                   style="width:100%;height:auto;max-height:72vh;object-fit:contain;
-                          border-radius:12px;border:2px solid #000;background:#fff">
-            `
-          }
-
+                  style="position:absolute;left:8px;top:50%;transform:translateY(-50%);border:1px solid #000;background:#fff;padding:6px 10px;border-radius:8px;cursor:pointer">‹</button>
+          ${main}
           <button id="next" aria-label="Next"
-                  style="position:absolute;right:8px;top:50%;transform:translateY(-50%);
-                         border:1px solid #000;background:#fff;padding:6px 10px;border-radius:8px;cursor:pointer">›</button>
+                  style="position:absolute;right:8px;top:50%;transform:translateY(-50%);border:1px solid #000;background:#fff;padding:6px 10px;border-radius:8px;cursor:pointer">›</button>
         </div>
-
         <div>
           ${media.map((m,i)=>{
             const border = i===idx ? '#000' : '#ccc';
             return isVideo(m)
-              ? `
-                <button class="thumb ${i===idx?'is-active':''}" data-i="${i}"
-                        style="all:unset;cursor:pointer;display:inline-block;margin:4px;position:relative">
-                  <video muted playsinline preload="metadata" src="${m}"
-                         style="width:72px;height:72px;object-fit:cover;border-radius:10px;border:2px solid ${border}"></video>
-                  <span style="position:absolute;bottom:6px;right:6px;background:#000c;color:#fff;
-                               border-radius:6px;padding:0 6px;font-size:12px;line-height:20px;">▶</span>
-                </button>
-              `
-              : `
-                <button class="thumb ${i===idx?'is-active':''}" data-i="${i}"
-                        style="all:unset;cursor:pointer;display:inline-block;margin:4px">
-                  <img src="${m}" alt="thumb ${i+1}"
-                       style="width:72px;height:72px;object-fit:cover;border-radius:10px;border:2px solid ${border}">
-                </button>
-              `;
+              ? `<button class="thumb ${i===idx?'is-active':''}" data-i="${i}"
+                         style="all:unset;cursor:pointer;display:inline-block;margin:4px;position:relative">
+                   <video muted playsinline preload="metadata" src="${m}"
+                          style="width:72px;height:72px;object-fit:cover;border-radius:10px;border:2px solid ${border}"></video>
+                   <span style="position:absolute;bottom:6px;right:6px;background:#000c;color:#fff;border-radius:6px;padding:0 6px;font-size:12px;line-height:20px;">▶</span>
+                 </button>`
+              : `<button class="thumb ${i===idx?'is-active':''}" data-i="${i}"
+                         style="all:unset;cursor:pointer;display:inline-block;margin:4px">
+                   <img src="${m}" alt="thumb ${i+1}"
+                        style="width:72px;height:72px;object-fit:cover;border-radius:10px;border:2px solid ${border}">
+                 </button>`;
           }).join('')}
         </div>
-      </div>
-    `;
+      </div>`;
 
-    // thumbs
+    // Log real media errors
+    const v = modalBody.querySelector('#mainMedia');
+    if (v && v.tagName === 'VIDEO') {
+      v.addEventListener('error', () => console.error('Video error:', v.error), { once:true });
+    }
+
     modalBody.querySelectorAll('.thumb').forEach(b=>{
-      b.addEventListener('click', ()=>{
-        pauseAll();
-        idx = Number(b.dataset.i);
-        paint();
-      });
+      b.addEventListener('click', ()=>{ pauseAll(); idx = Number(b.dataset.i); paint(); });
     });
-
-    // arrows
-    modalBody.querySelector('#prev').onclick = ()=>{
-      pauseAll();
-      idx = (idx-1+media.length)%media.length;
-      paint();
-    };
-    modalBody.querySelector('#next').onclick = ()=>{
-      pauseAll();
-      idx = (idx+1)%media.length;
-      paint();
-    };
+    modalBody.querySelector('#prev').onclick = ()=>{ pauseAll(); idx = (idx-1+media.length)%media.length; paint(); };
+    modalBody.querySelector('#next').onclick = ()=>{ pauseAll(); idx = (idx+1)%media.length; paint(); };
   }
 
   paint();
   modal.setAttribute('aria-hidden','false');
 
-  function onKey(e){
-    if(e.key==='Escape'){ close(); }
-    if(e.key==='ArrowLeft'){ modalBody.querySelector('#prev')?.click(); }
-    if(e.key==='ArrowRight'){ modalBody.querySelector('#next')?.click(); }
-  }
+  const onKey = (e)=>{
+    if(e.key==='Escape') close();
+    if(e.key==='ArrowLeft')  modalBody.querySelector('#prev')?.click();
+    if(e.key==='ArrowRight') modalBody.querySelector('#next')?.click();
+  };
+  function close(){ pauseAll(); modal.setAttribute('aria-hidden','true'); document.removeEventListener('keydown', onKey); }
   document.addEventListener('keydown', onKey);
-
-  function close(){
-    pauseAll();
-    modal.setAttribute('aria-hidden','true');
-    document.removeEventListener('keydown', onKey);
-  }
   modal.addEventListener('click', (e)=>{ if(e.target === modal) close(); }, { once:true });
   modalClose?.addEventListener('click', close, { once:true });
 }
-
 
     // ---------- CART ----------
     let cart = []; // {title,size,unitPrice,qty,stripe}
