@@ -388,14 +388,30 @@
       const { total } = totals();
       cartTotalEl.textContent = total.toFixed(2);
 
-      const last = cart[cart.length-1];
-      checkoutBtn.textContent = `Checkout — ${last.title}`;
-      checkoutBtn.onclick = (e)=>{
-        e.preventDefault();
-        if(!last?.stripe){ alert('Missing Stripe link'); return; }
-        window.open(last.stripe,'_blank','noopener');
-      };
-    }
+      checkoutBtn.onclick = async (e) => {
+  e.preventDefault();
+  if (!cart.length) return alert('Please add a product first.');
+
+  try {
+    const origin = window.location.origin;
+    const resp = await fetch('/api/checkout', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        // send only what we need; back-end recalculates prices safely
+        items: cart.map(i => ({ title: i.title, size: i.size, qty: i.qty, img: i.img })),
+        origin
+      })
+    });
+    const data = await resp.json();
+    if (!resp.ok) throw new Error(data.error || 'Checkout failed');
+    window.location = data.url; // redirect to Stripe Checkout
+  } catch (err) {
+    console.error(err);
+    alert('Sorry—checkout failed. Please try again.');
+  }
+};
+
 
     // Drawer open/close
     cartBtn?.addEventListener('click', ()=> cartDrawer.setAttribute('aria-hidden','false'));
