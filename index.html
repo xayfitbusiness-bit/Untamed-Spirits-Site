@@ -234,8 +234,15 @@
           const sz = sizeEl.value;
           if(!sz){ alert('Please select a size.'); sizeEl.focus(); return; }
           const unit = p.variantPrices[sz];
-          addToCart({ title:p.title, size:sz, unitPrice:unit, stripe:STRIPE[p.title] });
+          addToCart({
+            title: p.title,
+            size: sz,
+            unitPrice: unit,
+            stripe: STRIPE[p.title],
+            img: p.img          // 👈 add this
+          });
         });
+
 
         imgOpen.addEventListener('click', (e)=>{
           e.preventDefault();
@@ -358,17 +365,22 @@
 
       cartItemsEl.innerHTML = cart.map((i,idx)=>`
         <div class="cart-row" style="display:flex;justify-content:space-between;align-items:center;margin:6px 0;gap:10px;">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <img src="${i.img || ''}" alt="${i.title}" 
+              style="width:56px;height:56px;object-fit:cover;border-radius:8px;border:1px solid #1b2233;background:#111;">
           <div>
             <div style="font-weight:700">${i.title}</div>
             <div style="font-size:.9rem;color:#555">Size: ${i.size} · ${money(i.unitPrice)}</div>
           </div>
-          <div style="display:flex;align-items:center;gap:8px;">
-            <span>x${i.qty}</span>
-            <strong>${money(i.qty*i.unitPrice)}</strong>
-            <button class="icon-btn" aria-label="Remove" data-remove="${idx}">✕</button>
-          </div>
         </div>
-      `).join('');
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span>x${i.qty}</span>
+          <strong>${money(i.qty*i.unitPrice)}</strong>
+          <button class="icon-btn" aria-label="Remove" data-remove="${idx}">✕</button>
+        </div>
+      </div>
+    `).join('');
+
 
       cartItemsEl.querySelectorAll('[data-remove]').forEach(btn=>{
         btn.addEventListener('click', ()=> removeLine(Number(btn.getAttribute('data-remove'))));
