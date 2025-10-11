@@ -162,6 +162,14 @@
       'Wolf Muscle Tee':    'https://buy.stripe.com/cNicN5d0W4bJ9ue7zV14402',
     };
 
+    const PRICE_IDS = {
+      'Lion Muscle Tee':    { XS:'price_lion_xs', S:'price_lion_s', M:'price_lion_m', L:'price_lion_l', XL:'price_lion_xl', '2XL':'price_lion_2xl' },
+      'Tiger Muscle Tee':   { XS:'price_tiger_xs', S:'price_tiger_s', M:'price_tiger_m', L:'price_tiger_l', XL:'price_tiger_xl', '2XL':'price_tiger_2xl' },
+      'Bear Muscle Tee':    { XS:'price_bear_xs',  S:'price_bear_s',  M:'price_bear_m',  L:'price_bear_l',  XL:'price_bear_xl',  '2XL':'price_bear_2xl' },
+      'Gorilla Muscle Tee': { XS:'price_gor_xs',   S:'price_gor_s',   M:'price_gor_m',   L:'price_gor_l',   XL:'price_gor_xl',   '2XL':'price_gor_2xl' },
+      'Wolf Muscle Tee':    { XS:'price_wolf_xs',  S:'price_wolf_s',  M:'price_wolf_m',  L:'price_wolf_l',  XL:'price_wolf_xl',  '2XL':'price_wolf_2xl' },
+    };
+
     const PRODUCTS = [
       { title:'Lion Muscle Tee', img:'lion-logo.jpg', category:'big-cat',
         imgs:['lion-logo.jpg','lion-front.jpg','lion-vid.mp4','lion-detail.jpg'],
@@ -358,10 +366,36 @@
       if(cart.length===0){
         cartItemsEl.innerHTML = `<div style="color:#666">Cart empty</div>`;
         cartTotalEl.textContent = (0).toFixed(2);
-        checkoutBtn.textContent = 'Checkout';
-        checkoutBtn.onclick = (e)=>{ e.preventDefault(); alert('Please add a product first.'); };
-        return;
-      }
+        checkoutBtn.textContent = 'Checkout'; // optional label
+
+checkoutBtn.onclick = async (e) => {
+  e.preventDefault();
+  if (!cart.length) return alert('Please add a product first.');
+
+  // Build Stripe line items from cart
+  const items = cart.map(i => ({
+    price: PRICE_IDS[i.title]?.[i.size],   // product+size -> Stripe Price ID
+    quantity: i.qty,
+    meta: { title: i.title, size: i.size } // optional
+  })).filter(x => !!x.price);
+
+  if (!items.length) return alert('Missing Stripe price IDs for some items.');
+
+  try {
+    const resp = await fetch('/api/checkout', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ items })
+    });
+    const data = await resp.json();
+    if (!resp.ok) throw new Error(data.error || 'Checkout failed');
+    window.location = data.url; // redirect to Stripe Checkout
+  } catch (err) {
+    console.error(err);
+    alert('Sorry—checkout failed. Please try again.');
+  }
+};
+
 
       cartItemsEl.innerHTML = cart.map((i,idx)=>`
         <div class="cart-row" style="display:flex;justify-content:space-between;align-items:center;margin:6px 0;gap:10px;">
