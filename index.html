@@ -416,7 +416,7 @@
     }
 
     try {
-      const resp = await fetch('/api/checkout', {
+      const resp = await fetch('/.netlify/functions/checkout', {
         method: 'POST',
         headers: {'Content-Type':'application/json'},
         body: JSON.stringify({ items })
