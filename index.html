@@ -416,10 +416,11 @@
     }
 
     try {
+      // index.html script (client code)
       const resp = await fetch('/.netlify/functions/checkout', {
         method: 'POST',
-        headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({ items })
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ items }) // items = [{ price: 'price_...', quantity: 1 }, ...]
       });
       const data = await resp.json();
       if (!resp.ok) throw new Error(data.error || 'Checkout failed');
