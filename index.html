@@ -340,102 +340,104 @@
       modal.addEventListener('click', (e)=>{ if(e.target === modal) close(); }, { once:true });
       modalClose?.addEventListener('click', close, { once:true });
     }
+  // ---------- CART ----------
+      let cart = []; // {title,size,unitPrice,qty,stripe,img}
 
-    // ---------- CART ----------
-    let cart = []; // {title,size,unitPrice,qty,stripe}
+        function addToCart(item){
+          const existing = cart.find(i => i.title===item.title && i.size===item.size);
+            if(existing){ existing.qty += 1; }
+            else { cart.push({...item, qty:1}); }
+        renderCart();
+        cartDrawer.setAttribute('aria-hidden','false');
+}
 
-    function addToCart(item){
-      const existing = cart.find(i => i.title===item.title && i.size===item.size);
-      if(existing){ existing.qty += 1; }
-      else { cart.push({...item, qty:1}); }
-      renderCart();
-      cartDrawer.setAttribute('aria-hidden','false');
-    }
+        function removeLine(idx){
+        cart.splice(idx,1);
+        renderCart();
+}
 
-    function removeLine(idx){
-      cart.splice(idx,1);
-      renderCart();
-    }
+        function totals(){
+          const subtotal = cart.reduce((s,i)=>s + i.qty*i.unitPrice, 0);
+        return { subtotal, total:subtotal };
+}
 
-    function totals(){
-      const subtotal = cart.reduce((s,i)=>s + i.qty*i.unitPrice, 0);
-      return { subtotal, total:subtotal };
-    }
-
-    function renderCart(){
-      if(cart.length===0){
+        function renderCart(){
+  // Empty cart UI
+        if(cart.length===0){
         cartItemsEl.innerHTML = `<div style="color:#666">Cart empty</div>`;
         cartTotalEl.textContent = (0).toFixed(2);
-        checkoutBtn.textContent = 'Checkout'; // optional label
-
-checkoutBtn.onclick = async (e) => {
-  e.preventDefault();
-  if (!cart.length) return alert('Please add a product first.');
-
-  // Build Stripe line items from cart
-  const items = cart.map(i => ({
-    price: PRICE_IDS[i.title]?.[i.size],   // product+size -> Stripe Price ID
-    quantity: i.qty,
-    meta: { title: i.title, size: i.size } // optional
-  })).filter(x => !!x.price);
-
-  if (!items.length) return alert('Missing Stripe price IDs for some items.');
-
-  try {
-    const resp = await fetch('/api/checkout', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ items })
-    });
-    const data = await resp.json();
-    if (!resp.ok) throw new Error(data.error || 'Checkout failed');
-    window.location = data.url; // redirect to Stripe Checkout
-  } catch (err) {
-    console.error(err);
-    alert('Sorry—checkout failed. Please try again.');
+        checkoutBtn.textContent = 'Checkout';
+        checkoutBtn.onclick = (e)=>{ e.preventDefault(); alert('Please add a product first.'); };
+        return; // <-- IMPORTANT: close the empty branch here
   }
-};
 
-
+  // Lines
       cartItemsEl.innerHTML = cart.map((i,idx)=>`
         <div class="cart-row" style="display:flex;justify-content:space-between;align-items:center;margin:6px 0;gap:10px;">
           <div style="display:flex;align-items:center;gap:10px;">
-            <img src="${i.img || ''}" alt="${i.title}" 
-              style="width:56px;height:56px;object-fit:cover;border-radius:8px;border:1px solid #1b2233;background:#111;">
-          <div>
-            <div style="font-weight:700">${i.title}</div>
-            <div style="font-size:.9rem;color:#555">Size: ${i.size} · ${money(i.unitPrice)}</div>
-          </div>
-        </div>
-        <div style="display:flex;align-items:center;gap:8px;">
-          <span>x${i.qty}</span>
-          <strong>${money(i.qty*i.unitPrice)}</strong>
-          <button class="icon-btn" aria-label="Remove" data-remove="${idx}">✕</button>
+            <img src="${i.img || ''}" alt="${i.title}"
+             style="width:56px;height:56px;object-fit:cover;border-radius:8px;border:1px solid #1b2233;background:#111;">
+        <div>
+          <div style="font-weight:700">${i.title}</div>
+          <div style="font-size:.9rem;color:#555">Size: ${i.size} · ${money(i.unitPrice)}</div>
         </div>
       </div>
-    `).join('');
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span>x${i.qty}</span>
+        <strong>${money(i.qty*i.unitPrice)}</strong>
+        <button class="icon-btn" aria-label="Remove" data-remove="${idx}">✕</button>
+      </div>
+    </div>
+  `).join('');
 
+  cartItemsEl.querySelectorAll('[data-remove]').forEach(btn=>{
+    btn.addEventListener('click', ()=> removeLine(Number(btn.getAttribute('data-remove'))));
+  });
 
-      cartItemsEl.querySelectorAll('[data-remove]').forEach(btn=>{
-        btn.addEventListener('click', ()=> removeLine(Number(btn.getAttribute('data-remove'))));
-      });
+  // Totals
+  const { total } = totals();
+  cartTotalEl.textContent = total.toFixed(2);
 
-      const { total } = totals();
-      cartTotalEl.textContent = total.toFixed(2);
+  // ✅ Multi-item Stripe Checkout via your serverless function
+  checkoutBtn.textContent = 'Checkout';
+  checkoutBtn.onclick = async (e) => {
+    e.preventDefault();
+    if (!cart.length) return;
 
-      // GitHub Pages (no server): send to Stripe link of last added item
-      const last = cart[cart.length-1];
-      checkoutBtn.textContent = `Checkout — ${last.title}`;
-      checkoutBtn.onclick = (e)=>{
-        e.preventDefault();
-        if(!last?.stripe){ alert('Missing Stripe link'); return; }
-        window.open(last.stripe,'_blank','noopener');
-      };
+    // Build line items using your Stripe Price IDs (must be real IDs)
+    const items = cart.map(i => ({
+      price: PRICE_IDS[i.title]?.[i.size],   // e.g. price_123
+      quantity: i.qty
+    })).filter(x => !!x.price);
+
+    if (!items.length) {
+      alert('Missing Stripe Price IDs for some items. Check PRICE_IDS.');
+      return;
     }
 
-    // Drawer open/close
-    cartBtn?.addEventListener('click', ()=> cartDrawer.setAttribute('aria-hidden','false'));
-    closeCart?.addEventListener('click', ()=> cartDrawer.setAttribute('aria-hidden','true'));
+    try {
+      const resp = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ items })
+      });
+      const data = await resp.json();
+      if (!resp.ok) throw new Error(data.error || 'Checkout failed');
+      window.location = data.url; // redirect to Stripe Checkout
+    } catch (err) {
+      console.error(err);
+      alert('Sorry—checkout failed. Please try again.');
+    }
+  };
+}
+
+// Drawer open/close
+cartBtn?.addEventListener('click', ()=> cartDrawer.setAttribute('aria-hidden','false'));
+closeCart?.addEventListener('click', ()=> cartDrawer.setAttribute('aria-hidden','true'));
+
+// INIT
+renderProducts();
+renderCart();
 
     // ---------- FILTERS ----------
     $$('.filter').forEach(button => {
