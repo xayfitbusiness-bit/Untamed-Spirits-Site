@@ -174,19 +174,19 @@
     const PRODUCTS = [
       { title:'Lion Muscle Tee', img:'lion-logo.jpg', category:'big-cat',
         imgs:['lion-logo.jpg','lion-front.jpg','lion-vid.mp4','lion-detail.jpg'],
-        variantPrices:{ XS:30, S:30, M:30, L:30, XL:30, '2XL':32 } },
+        variantPrices:{ XS:"price_30", S:"price_30", M:"price_30", L:"price_30", XL:"price_30", '2XL':"price_32" } },
       { title:'Tiger Muscle Tee', img:'tiger-logo.jpg', category:'big-cat',
         imgs:['tiger-logo.jpg','tiger-front.jpg','tiger-back.jpg','tiger-detail.jpg'],
-        variantPrices:{ XS:35, S:35, M:35, L:35, XL:35, '2XL':37 } },
+        variantPrices:{  XS:"price_35", S:"price_35", M:"price_35", L:"price_35", XL:"price_35", '2XL':"price_37" } },
       { title:'Bear Muscle Tee', img:'bear-logo.jpg', category:'power',
         imgs:['bear-logo.jpg','bear-front.jpg','bear-detail.jpg'],
-        variantPrices:{ XS:30, S:30, M:30, L:30, XL:30, '2XL':32 } },
+        variantPrices:{ XS:"price_30", S:"price_30", M:"price_30", L:"price_30", XL:"price_30", '2XL':"price_32" } },
       { title:'Gorilla Muscle Tee', img:'gorilla-logo.jpg', category:'power',
         imgs:['gorilla-logo.jpg','gorilla-detail.jpg'],
-        variantPrices:{ XS:30, S:30, M:30, L:30, XL:30, '2XL':32 } },
+        variantPrices:{ XS:"price_30", S:"price_30", M:"price_30", L:"price_30", XL:"price_30", '2XL':"price_32"} },
       { title:'Wolf Muscle Tee', img:'wolf-logo.jpg', category:'pack',
         imgs:['wolf-logo.jpg','wolf-detail.jpg'],
-        variantPrices:{ XS:35, S:35, M:35, L:35, XL:35, '2XL':37 } },
+        variantPrices:{  XS:"price_35", S:"price_35", M:"price_35", L:"price_35", XL:"price_35", '2XL':"price_37" } },
     ];
 
     // ---------- ELEMENTS ----------
@@ -344,13 +344,24 @@
   // ---------- CART ----------
       let cart = []; // {title,size,unitPrice,qty,stripe,img}
 
-        function addToCart(item){
-          const existing = cart.find(i => i.title===item.title && i.size===item.size);
-            if(existing){ existing.qty += 1; }
-            else { cart.push({...item, qty:1}); }
-        renderCart();
-        cartDrawer.setAttribute('aria-hidden','false');
-}
+        function addToCart(item) {
+  // item is already coming in like:
+  // { title, size, unitPrice, stripe, img }
+
+      const existing = cart.find(i => i.title === item.title && i.size === item.size)
+        if (existing) {
+          existing.qty += 1;
+      } else {
+          cart.push({
+            ...item,
+            qty: 1
+        });
+       }
+
+      renderCart();
+      cartDrawer.setAttribute('aria-hidden', 'false');
+    }
+
 
         function removeLine(idx){
         cart.splice(idx,1);
