@@ -219,7 +219,7 @@ document.addEventListener('DOMContentLoaded', () => {
     checkoutBtn.textContent = `Checkout — ${last.title}`;
     checkoutBtn.onclick = (e)=>{
       e.preventDefault();
-      if(!last?.stripe){ alert('Missing Stripe link'); return; }
+      if(!last?.stripe){ alert('Sorry-checkout failed. Please try again.'); return; }
       window.open(last.stripe,'_blank','noopener');
     };
   }
