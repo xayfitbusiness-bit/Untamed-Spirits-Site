@@ -81,14 +81,14 @@ exports.handler = async (event) => {
           shipping_rate_data: {
             display_name: "Standard (5–7 days)",
             type: "fixed_amount",
-            fixed_amount: { amount: 599, currency: "usd" },
+            fixed_amount: { amount: "$0.00", currency: "usd" },
           },
         },
         {
           shipping_rate_data: {
             display_name: "Expedited (2–3 days)",
             type: "fixed_amount",
-            fixed_amount: { amount: 1299, currency: "usd" },
+            fixed_amount: { amount: "$2.99", currency: "usd" },
           },
         },
       ],
