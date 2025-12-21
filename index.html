@@ -415,21 +415,43 @@
       alert('Missing Stripe Price IDs for some items. Check PRICE_IDS.');
       return;
     }
+  try {
+  // If you ever open the github.io link, this still works:
+  const CHECKOUT_API = window.location.hostname.includes("github.io")
+    ? "https://untamed-spirits-shop.netlify.app/.netlify/functions/checkout"
+    : "/.netlify/functions/checkout";
 
-    try {
-      // index.html script (client code)
-      const resp = await fetch('/.netlify/functions/checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ items }) // items = [{ price: 'price_...', quantity: 1 }, ...]
-      });
-      const data = await resp.json();
-      if (!resp.ok) throw new Error(data.error || 'Checkout failed');
-      window.location = data.url; // redirect to Stripe Checkout
-    } catch (err) {
-      console.error(err);
-      alert('Sorry—checkout failed. Please try again.');
-    }
+  console.log("ITEMS GOING TO CHECKOUT:", items);
+
+  const resp = await fetch(CHECKOUT_API, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ items }),
+  });
+
+  const text = await resp.text(); // <-- IMPORTANT: read raw first
+  let data;
+  try {
+    data = JSON.parse(text);
+  } catch {
+    console.error("Non-JSON response:", text);
+    throw new Error("Checkout endpoint not responding (open the Netlify site link).");
+  }
+
+  if (!resp.ok) {
+    console.error("Checkout error:", resp.status, data);
+    throw new Error(data.error || `Checkout failed (${resp.status})`);
+  }
+
+  if (!data.url) throw new Error("No checkout URL returned.");
+
+  window.location.href = data.url;
+} catch (err) {
+  console.error(err);
+  alert(err.message); // <-- shows the REAL reason now
+}
+
+  
   };
 }
 
